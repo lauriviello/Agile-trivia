@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agile Quest Live</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f0c29;color:#fff;min-height:100vh}
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.screen.active{display:flex}
+
+/* LANDING */
+#landingScreen{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);text-align:center}
+.logo{font-size:3rem;font-weight:900;background:linear-gradient(90deg,#f7971e,#ffd200);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.tagline{color:#aaa;margin-bottom:36px;font-size:1rem}
+.mode-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}
+.mode-card{background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);border-radius:18px;padding:28px 32px;cursor:pointer;transition:all 0.2s;max-width:220px;text-align:center}
+.mode-card:hover{border-color:#ffd200;transform:translateY(-3px);box-shadow:0 8px 24px rgba(255,210,0,0.2)}
+.mode-icon{font-size:2.8rem;margin-bottom:12px}
+.mode-title{font-weight:800;font-size:1.05rem;margin-bottom:6px}
+.mode-desc{font-size:0.8rem;color:#aaa;line-height:1.5}
+
+/* SHARED */
+.btn{padding:12px 30px;border:none;border-radius:50px;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:linear-gradient(90deg,#f7971e,#ffd200);color:#1a1a2e}
+.btn-primary:hover{transform:scale(1.04);box-shadow:0 0 18px rgba(255,210,0,0.4)}
+.btn-secondary{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);margin-top:10px}
+.btn-danger{background:rgba(255,60,60,0.2);color:#ff8080;border:1px solid #ff4040}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px}
+.input{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 16px;color:#fff;font-size:1rem;width:100%;outline:none}
+.input:focus{border-color:#ffd200}
+.label{font-size:0.78rem;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.section-title{font-size:1.7rem;font-weight:800;color:#ffd200;margin-bottom:8px}
+.section-sub{color:#888;margin-bottom:24px;font-size:0.9rem}
+
+/* HOST LOBBY */
+#hostLobby{background:linear-gradient(135deg,#0d1b2a,#1b263b)}
+.game-code-box{background:rgba(255,210,0,0.1);border:2px solid #ffd200;border-radius:16px;padding:20px 40px;text-align:center;margin-bottom:24px}
+.code-label{font-size:0.75rem;color:#ffd200;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.code-value{font-size:3.5rem;font-weight:900;letter-spacing:8px;color:#fff;font-family:monospace}
+.join-url{font-size:0.72rem;color:#888;margin-top:6px}
+.players-list{width:100%;max-width:500px;min-height:80px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:20px}
+.player-chip{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:30px;padding:8px 18px;display:flex;align-items:center;gap:8px;font-size:0.9rem;animation:pop 0.3s ease}
+@keyframes pop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+.player-dot{width:10px;height:10px;border-radius:50%}
+.waiting-msg{color:#555;font-size:0.9rem;font-style:italic}
+
+/* HOST GAME */
+#hostGame{background:#0f0c29;justify-content:flex-start;padding:0}
+.host-header{width:100%;background:rgba(0,0,0,0.5);padding:12px 24px;display:flex;align-items:center;gap:20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.host-code{font-family:monospace;font-size:1.1rem;font-weight:800;color:#ffd200;background:rgba(255,210,0,0.1);padding:4px 12px;border-radius:8px;letter-spacing:3px}
+.chaos-wrap{flex:1}
+.chaos-lbl{font-size:0.65rem;color:#ff8080;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;display:flex;justify-content:space-between}
+.chaos-track{height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden}
+.chaos-fill{height:100%;border-radius:4px;transition:width 0.6s;background:linear-gradient(90deg,#f7971e,#ff4444)}
+.host-body{width:100%;max-width:800px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+
+.chapter-pill{display:inline-block;background:rgba(255,210,0,0.15);border:1px solid #ffd200;color:#ffd200;padding:4px 14px;border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.q-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:22px}
+.q-cat{font-size:0.7rem;color:#ffd200;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.q-text{font-size:1.2rem;font-weight:700;line-height:1.5}
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-display{border-radius:12px;padding:14px 18px;font-size:0.9rem;font-weight:600;border:2px solid transparent;transition:all 0.3s}
+.opt-A{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4);color:#fca5a5}
+.opt-B{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.4);color:#93c5fd}
+.opt-C{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4);color:#86efac}
+.opt-D{background:rgba(234,179,8,0.15);border-color:rgba(234,179,8,0.4);color:#fde047}
+.opt-display.correct-reveal{background:rgba(0,200,100,0.25);border-color:#00c864;color:#00ff88}
+.opt-display.wrong-reveal{opacity:0.35}
+
+.response-bar{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px}
+.resp-count{font-size:1.4rem;font-weight:900;color:#ffd200;min-width:40px;text-align:center}
+.resp-label{font-size:0.85rem;color:#aaa}
+.resp-progress{flex:1;height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
+.resp-fill{height:100%;background:linear-gradient(90deg,#f7971e,#ffd200);border-radius:4px;transition:width 0.4s}
+
+.host-controls{display:flex;gap:10px;align-items:center}
+.timer-display{font-size:1.6rem;font-weight:900;color:#ffd200;min-width:48px;text-align:center}
+.timer-display.urgent{color:#ff5050;animation:pulse 0.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* EXPLANATION HOST */
+.exp-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;overflow:hidden}
+.exp-hdr{padding:12px 18px;font-weight:700;font-size:0.9rem}
+.exp-hdr.c{background:rgba(0,200,100,0.15);color:#00ff88;border-bottom:1px solid rgba(0,200,100,0.2)}
+.exp-hdr.w{background:rgba(255,60,60,0.15);color:#ff8080;border-bottom:1px solid rgba(255,60,60,0.2)}
+.exp-body-row{display:flex;gap:14px;padding:14px 18px;align-items:flex-start}
+.exp-txt{font-size:0.85rem;color:#ccc;line-height:1.6;flex:1}
+.exp-svg{width:110px;flex-shrink:0}
+.exp-svg svg{width:100%;border-radius:8px}
+
+/* LEADERBOARD HOST */
+.lb-rows{width:100%;display:flex;flex-direction:column;gap:8px}
+.lb-row{background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:12px;transition:all 0.4s}
+.lb-row.gold{background:rgba(255,210,0,0.12);border:1px solid rgba(255,210,0,0.3)}
+.lb-rank{font-size:1.2rem;width:32px;text-align:center}
+.lb-avatar{font-size:1.2rem;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.lb-name{flex:1;font-weight:700}
+.lb-pts{font-weight:900;color:#ffd200}
+.lb-delta{font-size:0.75rem;color:#00ff88;margin-left:4px}
+
+/* JOIN SCREEN */
+#joinScreen{background:linear-gradient(135deg,#0f0c29,#302b63);text-align:center}
+#playerGame{background:#0f0c29;justify-content:flex-start;padding:0}
+
+.player-header{width:100%;background:rgba(0,0,0,0.4);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08)}
+.p-name-badge{display:flex;align-items:center;gap:8px;font-weight:700}
+.p-score-badge{font-size:0.85rem;color:#ffd200;font-weight:800}
+
+.player-body{width:100%;max-width:500px;margin:0 auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.p-q-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:18px}
+.p-q-cat{font-size:0.68rem;color:#ffd200;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.p-q-text{font-size:1.05rem;font-weight:700;line-height:1.5}
+.p-opts{display:flex;flex-direction:column;gap:10px}
+.p-opt{width:100%;border-radius:12px;padding:14px 18px;font-size:0.95rem;font-weight:700;cursor:pointer;border:2px solid;text-align:left;transition:all 0.2s;display:flex;align-items:center;gap:10px}
+.p-opt:disabled{cursor:default;opacity:0.7}
+.p-opt.A{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.5);color:#fca5a5}
+.p-opt.B{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.5);color:#93c5fd}
+.p-opt.C{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.5);color:#86efac}
+.p-opt.D{background:rgba(234,179,8,0.15);border-color:rgba(234,179,8,0.5);color:#fde047}
+.p-opt.selected-correct{background:rgba(0,200,100,0.25)!important;border-color:#00c864!important;color:#00ff88!important}
+.p-opt.selected-wrong{background:rgba(255,50,50,0.25)!important;border-color:#ff3232!important;color:#ff8080!important}
+.p-opt.reveal-correct{background:rgba(0,200,100,0.15)!important;border-color:#00c864!important;color:#00ff88!important}
+
+.waiting-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:28px;text-align:center}
+.waiting-spinner{font-size:2rem;animation:spin 1.5s linear infinite;display:inline-block;margin-bottom:12px}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+.p-exp-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px}
+.p-exp-hdr{font-weight:700;margin-bottom:8px;font-size:0.9rem}
+.p-exp-hdr.c{color:#00ff88}
+.p-exp-hdr.w{color:#ff8080}
+.p-exp-txt{font-size:0.83rem;color:#ccc;line-height:1.6}
+
+.p-lb{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px}
+.p-lb-title{font-size:0.75rem;color:#ffd200;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.p-lb-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.05)}
+.p-lb-row:last-child{border:none}
+.p-lb-me{font-weight:800;color:#ffd200}
+
+/* FINAL */
+#hostFinal{background:linear-gradient(135deg,#0f0c29,#302b63);text-align:center}
+.final-emoji{font-size:5rem;margin-bottom:10px}
+.final-title{font-size:2.2rem;font-weight:900;color:#ffd200;margin-bottom:6px}
+.final-sub{color:#aaa;margin-bottom:24px}
+.final-board{width:100%;max-width:440px;background:rgba(255,255,255,0.05);border-radius:14px;padding:18px;margin-bottom:20px}
+.saved-pill{background:rgba(0,200,100,0.15);border:1px solid #00c864;color:#00ff88;border-radius:10px;padding:8px 18px;margin-bottom:16px;font-weight:700;font-size:0.88rem}
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div class="screen active" id="landingScreen">
+  <div class="logo">🚀 Agile Quest</div>
+  <div class="tagline">Live Multiplayer Trivia — Agile & Scrum Edition</div>
+  <div class="mode-cards">
+    <div class="mode-card" onclick="showHost()">
+      <div class="mode-icon">📺</div>
+      <div class="mode-title">Host a Game</div>
+      <div class="mode-desc">Display questions on the big screen. Players join from their phones.</div>
+    </div>
+    <div class="mode-card" onclick="showJoin()">
+      <div class="mode-icon">📱</div>
+      <div class="mode-title">Join a Game</div>
+      <div class="mode-desc">Enter a game code and play from your device in real time.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOST LOBBY -->
+<div class="screen" id="hostLobby">
+  <div class="section-title">Host Lobby</div>
+  <div class="section-sub">Share the code — players join from their own devices</div>
+  <div class="game-code-box">
+    <div class="code-label">Game Code</div>
+    <div class="code-value" id="hostCodeDisplay">----</div>
+    <div class="join-url">Open this page → "Join a Game" → enter code</div>
+  </div>
+  <div class="label" style="margin-bottom:10px">Players Joined (<span id="playerCount">0</span>)</div>
+  <div class="players-list" id="lobbyPlayersList"><div class="waiting-msg">Waiting for players...</div></div>
+  <button class="btn btn-primary" id="startGameBtn" onclick="hostStartGame()" style="opacity:0.4;pointer-events:none">Start Game (need 1+ player)</button>
+  <button class="btn btn-secondary" onclick="show('landingScreen')">← Back</button>
+</div>
+
+<!-- HOST GAME -->
+<div class="screen" id="hostGame">
+  <div class="host-header">
+    <div class="host-code" id="hostCodeGame">----</div>
+    <div class="chaos-wrap">
+      <div class="chaos-lbl"><span>🔥 Company Chaos</span><span id="hChaosVal">100%</span></div>
+      <div class="chaos-track"><div class="chaos-fill" id="hChaosFill" style="width:100%"></div></div>
+    </div>
+    <div style="font-size:0.75rem;color:#666" id="hProgress">Q 1/4</div>
+  </div>
+  <div class="host-body">
+    <!-- story/transition -->
+    <div id="hostStoryPanel" style="text-align:center;padding:20px 0;display:none">
+      <div style="font-size:3rem;margin-bottom:10px" id="hStoryEmoji">🔥</div>
+      <div style="font-size:0.72rem;color:#ffd200;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px" id="hChapterBadge">Chapter 1</div>
+      <div style="font-size:1.6rem;font-weight:900;margin-bottom:10px" id="hStoryTitle"></div>
+      <div style="color:#aaa;max-width:500px;margin:0 auto 20px;font-size:0.9rem;line-height:1.7" id="hStoryText"></div>
+      <button class="btn btn-primary" onclick="hostNextQuestion()">Start Questions →</button>
+    </div>
+    <!-- question panel -->
+    <div id="hostQPanel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span class="chapter-pill" id="hChapterPill">Chapter 1</span>
+        <div class="host-controls">
+          <div class="timer-display" id="hTimer">20</div>
+          <button class="btn btn-primary" id="hRevealBtn" onclick="hostReveal()" style="display:none">Reveal Answer</button>
+          <button class="btn btn-primary" id="hNextBtn" onclick="hostAdvance()" style="display:none">Next →</button>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-cat" id="hQCat"></div>
+        <div class="q-text" id="hQText"></div>
+      </div>
+      <div class="opts-grid" id="hOptsGrid"></div>
+      <div class="response-bar">
+        <div class="resp-count" id="hRespCount">0</div>
+        <div>
+          <div class="resp-label">responses</div>
+        </div>
+        <div class="resp-progress"><div class="resp-fill" id="hRespFill" style="width:0%"></div></div>
+        <div style="font-size:0.8rem;color:#555" id="hRespTotal">/ 0 players</div>
+      </div>
+    </div>
+    <!-- explanation panel -->
+    <div id="hostExpPanel" style="display:none">
+      <div class="exp-card">
+        <div class="exp-hdr c" id="hExpHdr">✅ Correct answer:</div>
+        <div class="exp-body-row">
+          <div class="exp-txt" id="hExpTxt"></div>
+          <div class="exp-svg" id="hExpSvg"></div>
+        </div>
+      </div>
+      <div class="lb-rows" id="hLbRows"></div>
+      <div style="text-align:center;margin-top:10px">
+        <button class="btn btn-primary" onclick="hostAdvance()">Next →</button>
+      </div>
+    </div>
+    <!-- leaderboard panel -->
+    <div id="hostLbPanel" style="display:none">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:1.5rem;font-weight:900;color:#ffd200">🏅 Leaderboard</div>
+      </div>
+      <div class="lb-rows" id="hLbRowsFull"></div>
+      <div style="text-align:center;margin-top:14px">
+        <button class="btn btn-primary" onclick="hostNextChapter()">Next Chapter →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOST FINAL -->
+<div class="screen" id="hostFinal">
+  <div class="final-emoji" id="hFinalEmoji">🏆</div>
+  <div class="final-title" id="hFinalTitle">Company Saved!</div>
+  <div class="final-sub" id="hFinalSub"></div>
+  <div class="saved-pill" id="hSavedPill"></div>
+  <div class="final-board" id="hFinalBoard"></div>
+  <button class="btn btn-primary" onclick="location.reload()">Play Again 🔄</button>
+</div>
+
+<!-- JOIN SCREEN -->
+<div class="screen" id="joinScreen">
+  <div style="text-align:center;max-width:340px;width:100%">
+    <div style="font-size:2.5rem;margin-bottom:8px">📱</div>
+    <div class="section-title">Join a Game</div>
+    <div class="section-sub">Enter the code shown on the host screen</div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="label">Game Code</div>
+      <input class="input" id="joinCodeInput" placeholder="e.g. 4829" maxlength="4" style="font-size:2rem;text-align:center;letter-spacing:6px;font-weight:900;margin-bottom:14px"/>
+      <div class="label">Your Name</div>
+      <input class="input" id="joinNameInput" placeholder="Your name" style="margin-bottom:6px"/>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0" id="avatarPickRow"></div>
+      <div id="joinError" style="color:#ff8080;font-size:0.82rem;margin-bottom:8px;display:none"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="joinGame()">Join! 🚀</button>
+    <button class="btn btn-secondary" style="width:100%" onclick="show('landingScreen')">← Back</button>
+  </div>
+</div>
+
+<!-- PLAYER GAME -->
+<div class="screen" id="playerGame">
+  <div class="player-header">
+    <div class="p-name-badge">
+      <span id="pHeaderAvatar" style="font-size:1.2rem">😎</span>
+      <span id="pHeaderName">Player</span>
+    </div>
+    <div class="p-score-badge">⭐ <span id="pHeaderScore">0</span> pts</div>
+  </div>
+  <div class="player-body" id="playerBody">
+    <div class="waiting-card">
+      <div class="waiting-spinner">⏳</div>
+      <div style="font-weight:700;margin-bottom:6px">Joined! Waiting for host...</div>
+      <div style="font-size:0.82rem;color:#666">The game will start soon</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────
+const COLORS=['#f7971e','#00c8ff','#a855f7','#22c55e','#f43f5e','#06b6d4','#8b5cf6','#10b981'];
+const AVATARS=['😎','🦸','🧙','🤖','🦊','🐧','🎯','🚀','🦄','🎸'];
+
+function svgScrum(){return`<svg viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a3e;border-radius:6px"><rect x="5" y="5" width="100" height="20" rx="4" fill="#302b63"/><text x="55" y="19" text-anchor="middle" fill="#ffd200" font-size="8" font-weight="bold">PRODUCT BACKLOG</text><text x="55" y="35" text-anchor="middle" fill="#aaa" font-size="7">↓ Sprint Planning</text><rect x="5" y="42" width="100" height="18" rx="4" fill="#1b3a5c"/><text x="55" y="55" text-anchor="middle" fill="#00c8ff" font-size="8" font-weight="bold">SPRINT (1-4 wks)</text><text x="55" y="70" text-anchor="middle" fill="#aaa" font-size="7">→ Increment</text></svg>`}
+function svgNexus(){return`<svg viewBox="0 0 110 85" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a3e;border-radius:6px"><rect x="35" y="3" width="40" height="16" rx="3" fill="#7c3aed"/><text x="55" y="14" text-anchor="middle" fill="#fff" font-size="6.5" font-weight="bold">NIT</text><rect x="5" y="28" width="28" height="14" rx="3" fill="#302b63"/><text x="19" y="38" text-anchor="middle" fill="#c4b5fd" font-size="6">Team 1</text><rect x="41" y="28" width="28" height="14" rx="3" fill="#302b63"/><text x="55" y="38" text-anchor="middle" fill="#c4b5fd" font-size="6">Team 2</text><rect x="77" y="28" width="28" height="14" rx="3" fill="#302b63"/><text x="91" y="38" text-anchor="middle" fill="#c4b5fd" font-size="6">Team 3</text><line x1="55" y1="19" x2="19" y2="28" stroke="#7c3aed" stroke-width="1"/><line x1="55" y1="19" x2="55" y2="28" stroke="#7c3aed" stroke-width="1"/><line x1="55" y1="19" x2="91" y2="28" stroke="#7c3aed" stroke-width="1"/><rect x="15" y="52" width="80" height="14" rx="3" fill="#1b3a5c"/><text x="55" y="62" text-anchor="middle" fill="#00c8ff" font-size="6.5" font-weight="bold">Integrated Increment</text><text x="55" y="78" text-anchor="middle" fill="#aaa" font-size="6">3-9 teams · 1 backlog</text></svg>`}
+function svgLeSS(){return`<svg viewBox="0 0 110 85" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a3e;border-radius:6px"><rect x="25" y="3" width="60" height="14" rx="3" fill="#065f46"/><text x="55" y="13" text-anchor="middle" fill="#6ee7b7" font-size="6.5" font-weight="bold">1 Product Owner</text><rect x="25" y="22" width="60" height="14" rx="3" fill="#064e3b"/><text x="55" y="32" text-anchor="middle" fill="#a7f3d0" font-size="6.5">1 Product Backlog</text><rect x="5" y="46" width="30" height="14" rx="3" fill="#1a3a2e"/><text x="20" y="56" text-anchor="middle" fill="#6ee7b7" font-size="6">Team A</text><rect x="40" y="46" width="30" height="14" rx="3" fill="#1a3a2e"/><text x="55" y="56" text-anchor="middle" fill="#6ee7b7" font-size="6">Team B</text><rect x="75" y="46" width="30" height="14" rx="3" fill="#1a3a2e"/><text x="90" y="56" text-anchor="middle" fill="#6ee7b7" font-size="6">Team C</text><text x="55" y="76" text-anchor="middle" fill="#aaa" font-size="6">2-8 teams · minimal overhead</text></svg>`}
+function svgSoS(){return`<svg viewBox="0 0 110 85" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a3e;border-radius:6px"><rect x="35" y="3" width="40" height="14" rx="3" fill="#7e2d40"/><text x="55" y="13" text-anchor="middle" fill="#fda4af" font-size="6.5" font-weight="bold">Scrum of Scrums</text><circle cx="20" cy="45" r="13" fill="#3b1219"/><text x="20" y="43" text-anchor="middle" fill="#fca5a5" font-size="5.5">Team</text><text x="20" y="52" text-anchor="middle" fill="#fca5a5" font-size="5.5">Alpha</text><circle cx="55" cy="45" r="13" fill="#3b1219"/><text x="55" y="43" text-anchor="middle" fill="#fca5a5" font-size="5.5">Team</text><text x="55" y="52" text-anchor="middle" fill="#fca5a5" font-size="5.5">Beta</text><circle cx="90" cy="45" r="13" fill="#3b1219"/><text x="90" y="43" text-anchor="middle" fill="#fca5a5" font-size="5.5">Team</text><text x="90" y="52" text-anchor="middle" fill="#fca5a5" font-size="5.5">Gamma</text><line x1="55" y1="17" x2="20" y2="32" stroke="#f87171" stroke-width="1" stroke-dasharray="3,2"/><line x1="55" y1="17" x2="55" y2="32" stroke="#f87171" stroke-width="1" stroke-dasharray="3,2"/><line x1="55" y1="17" x2="90" y2="32" stroke="#f87171" stroke-width="1" stroke-dasharray="3,2"/><text x="55" y="76" text-anchor="middle" fill="#aaa" font-size="5.5">1 rep per team syncs up</text></svg>`}
+function svgSAFe(){return`<svg viewBox="0 0 110 85" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a3e;border-radius:6px"><rect x="5" y="3" width="100" height="14" rx="3" fill="#1e3a5f"/><text x="55" y="13" text-anchor="middle" fill="#60a5fa" font-size="6.5" font-weight="bold">Portfolio Level</text><rect x="5" y="22" width="100" height="14" rx="3" fill="#1e3a5f"/><text x="55" y="32" text-anchor="middle" fill="#93c5fd" font-size="6.5">Program Level (ART)</text><rect x="5" y="41" width="47" height="14" rx="3" fill="#1a2e4a"/><text x="28" y="51" text-anchor="middle" fill="#bfdbfe" font-size="6">Team 1</text><rect x="58" y="41" width="47" height="14" rx="3" fill="#1a2e4a"/><text x="81" y="51" text-anchor="middle" fill="#bfdbfe" font-size="6">Team 2</text><rect x="5" y="60" width="100" height="14" rx="3" fill="#0f1f35"/><text x="55" y="70" text-anchor="middle" fill="#93c5fd" font-size="6">PI Planning (8-12 wks)</text></svg>`}
+function svgWIP(){return`<svg viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a3e;border-radius:6px"><text x="55" y="12" text-anchor="middle" fill="#ffd200" font-size="7" font-weight="bold">Kanban Board</text><rect x="3" y="18" width="32" height="12" rx="2" fill="#1e3a5f"/><text x="19" y="27" text-anchor="middle" fill="#93c5fd" font-size="6">To Do</text><rect x="39" y="18" width="32" height="12" rx="2" fill="#3b1219"/><text x="55" y="27" text-anchor="middle" fill="#fca5a5" font-size="6">In Progress ⚠️</text><rect x="75" y="18" width="32" height="12" rx="2" fill="#064e3b"/><text x="91" y="27" text-anchor="middle" fill="#6ee7b7" font-size="6">Done</text><rect x="5" y="34" width="28" height="9" rx="2" fill="#302b63"/><rect x="5" y="46" width="28" height="9" rx="2" fill="#302b63"/><rect x="41" y="34" width="28" height="9" rx="2" fill="#7e2d40"/><rect x="41" y="46" width="28" height="9" rx="2" fill="#7e2d40"/><text x="55" y="65" text-anchor="middle" fill="#f87171" font-size="5.5">WIP Limit Hit! 🚨</text><rect x="77" y="34" width="28" height="9" rx="2" fill="#065f46"/></svg>`}
+function svgRoles(){return`<svg viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a3e;border-radius:6px"><circle cx="20" cy="28" r="10" fill="#1e3a5f"/><text x="20" y="32" text-anchor="middle" fill="#60a5fa" font-size="8">PO</text><circle cx="55" cy="28" r="10" fill="#302b63"/><text x="55" y="32" text-anchor="middle" fill="#c4b5fd" font-size="8">SM</text><circle cx="90" cy="28" r="10" fill="#065f46"/><text x="90" y="32" text-anchor="middle" fill="#6ee7b7" font-size="8">Dev</text><text x="20" y="50" text-anchor="middle" fill="#aaa" font-size="5.5">Maximizes</text><text x="20" y="57" text-anchor="middle" fill="#aaa" font-size="5.5">value</text><text x="55" y="50" text-anchor="middle" fill="#aaa" font-size="5.5">Removes</text><text x="55" y="57" text-anchor="middle" fill="#aaa" font-size="5.5">blockers</text><text x="90" y="50" text-anchor="middle" fill="#aaa" font-size="5.5">Builds</text><text x="90" y="57" text-anchor="middle" fill="#aaa" font-size="5.5">increment</text></svg>`}
+function svgDoD(){return`<svg viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg" style="background:#1a1a3e;border-radius:6px"><text x="55" y="13" text-anchor="middle" fill="#ffd200" font-size="7" font-weight="bold">Definition of Done</text><text x="14" y="28" fill="#6ee7b7" font-size="9">✓</text><text x="24" y="28" fill="#ccc" font-size="6.5">Code reviewed</text><text x="14" y="40" fill="#6ee7b7" font-size="9">✓</text><text x="24" y="40" fill="#ccc" font-size="6.5">Tests passed</text><text x="14" y="52" fill="#6ee7b7" font-size="9">✓</text><text x="24" y="52" fill="#ccc" font-size="6.5">Deployed to staging</text><text x="14" y="64" fill="#6ee7b7" font-size="9">✓</text><text x="24" y="64" fill="#ccc" font-size="6.5">Docs updated</text></svg>`}
+
+const CHAPTERS=[
+  {badge:'Chapter 1',emoji:'🔥',title:'The Crisis',text:'TechCorp is in chaos. Engineers ship code with no plan. Before you can help, prove you know Agile fundamentals.'},
+  {badge:'Chapter 2',emoji:'🏃',title:'Sprint Zero',text:'The team is listening! Set up Scrum structures — roles, backlogs, sprint goals. Clock is ticking.'},
+  {badge:'Chapter 3',emoji:'📋',title:'The First Sprint',text:'Sprint kicks off! Guide them through ceremonies and artifacts before chaos returns.'},
+  {badge:'Chapter 4',emoji:'🌐',title:'Scale or Fail',text:'TechCorp is growing — 5 teams, 2 products, zero coordination. Pick the right scaling strategy!'}
+];
+
+const ALL_QS=[
+  {cat:'Agile Manifesto',q:'The Agile Manifesto values "processes and tools" — but what does it value MORE?',opts:['Documentation and contracts','Individuals and interactions','Comprehensive planning','Following a roadmap'],ans:1,ch:0,exp:'The first Agile value is "Individuals and interactions over processes and tools." People and communication drive great software.',visual:svgScrum()},
+  {cat:'Agile Principles',q:'What is the PRIMARY measure of progress according to Agile?',opts:['Velocity per sprint','Number of tasks done','Working software','Test coverage %'],ans:2,ch:0,exp:'Agile Principle #7: "Working software is the primary measure of progress." Metrics are secondary.',visual:svgScrum()},
+  {cat:'Agile Mindset',q:'What does "sustainable pace" mean in Agile?',opts:['Never working overtime','A pace teams can maintain indefinitely','Sprints always 2 weeks','Devs set their own hours'],ans:1,ch:0,exp:'Agile promotes sustainable pace so teams stay healthy long-term. Burnout kills quality. Consistency beats heroics.',visual:svgScrum()},
+  {cat:'Agile Principles',q:'How does Agile treat technical excellence and good design?',opts:['Defer it to later','Ignore it for velocity','Attend to it continuously','Give it to an arch team'],ans:2,ch:0,exp:'Principle #9: Continuous attention to technical excellence enhances agility. Cutting corners creates technical debt.',visual:svgScrum()},
+  {cat:'Scrum Roles',q:'The PO wrote a User Story. Who decides HOW to implement it?',opts:['Product Owner','Scrum Master','Development Team','Project Sponsor'],ans:2,ch:1,exp:'PO owns WHAT. Dev Team owns HOW. This separation is core — teams are self-organizing.',visual:svgRoles()},
+  {cat:'Scrum Roles',q:'A stakeholder asks the SM to add a task mid-sprint. What should SM do?',opts:['Add it immediately','Tell Dev Team to fit it','Redirect to Product Owner','Pause and replan'],ans:2,ch:1,exp:'The SM protects the team from mid-sprint scope changes. Only the PO can negotiate sprint scope.',visual:svgRoles()},
+  {cat:'Scrum Artifacts',q:'Key difference between Product Backlog and Sprint Backlog?',opts:['Sprint Backlog owned by PO','Sprint = one Sprint plan; Product = full wishlist','They are the same','Product Backlog = only bugs'],ans:1,ch:1,exp:'Product Backlog: full ordered list owned by PO. Sprint Backlog: the team\'s plan for THIS Sprint only.',visual:svgScrum()},
+  {cat:'Scrum Artifacts',q:'What is the Sprint Goal?',opts:['Story points committed','Single objective giving Sprint focus','All tasks in the Sprint','Sprint deadline'],ans:1,ch:1,exp:'Sprint Goal is ONE objective agreed in Sprint Planning. It gives flexibility in implementation while keeping direction.',visual:svgScrum()},
+  {cat:'Scrum Ceremonies',q:'Daily Scrum is 15 min. Issue needs more time — what to do?',opts:['Extend until resolved','Cancel standup','Schedule separate meeting after','SM decides in meeting'],ans:2,ch:2,exp:'Daily Scrum = planning, not problem solving. Issues are noted and handled in follow-up meetings.',visual:svgScrum()},
+  {cat:'Scrum Ceremonies',q:'Who MUST attend the Sprint Retrospective?',opts:['Full Scrum Team (PO+SM+Devs)','Dev Team only','Dev Team + key stakeholders','SM + Dev Team only'],ans:0,ch:2,exp:'All Scrum Team members attend the Retro. Stakeholders are typically excluded to encourage candid conversation.',visual:svgRoles()},
+  {cat:'Scrum Artifacts',q:'What is the Definition of Ready (DoR)?',opts:['Criteria to release an increment','Conditions an item must meet before entering a Sprint','When team is ready to start project','Min viable product definition'],ans:1,ch:2,exp:'DoR is a quality gate for the backlog — items must be clear, estimated, and actionable before being pulled into a Sprint.',visual:svgDoD()},
+  {cat:'Scrum Ceremonies',q:'During Sprint Planning, who selects backlog items?',opts:['PO assigns to team','SM facilitates selection','Dev Team selects with PO priority input','Project Manager sets scope'],ans:2,ch:2,exp:'The Dev Team selects items based on capacity. The team forecasts what they can deliver — nobody commits on their behalf.',visual:svgRoles()},
+  {cat:'Nexus',q:'Nexus is designed for how many Scrum teams?',opts:['2-5 teams','3-9 teams','10-20 teams','Any number'],ans:1,ch:3,exp:'Nexus (by Ken Schwaber) scales Scrum for 3-9 teams on one product, introducing the Nexus Integration Team (NIT).',visual:svgNexus()},
+  {cat:'Nexus',q:'What is the main purpose of the Nexus Integration Team?',opts:['Replace Product Owner at scale','Ensure teams produce one integrated increment per Sprint','Manage budgets across teams','Act as a management layer'],ans:1,ch:3,exp:'The NIT coordinates cross-team integration, coaches teams, and ensures the combined work results in one working product.',visual:svgNexus()},
+  {cat:'LeSS',q:'What is LeSS\'s defining philosophy?',opts:['Adds many new roles','Scales by removing complexity, not adding it','Requires a dedicated integration team','Uses 8-12 week Program Increments'],ans:1,ch:3,exp:'LeSS scales by simplifying: multiple teams share one backlog and one PO. No new roles — just Scrum at scale.',visual:svgLeSS()},
+  {cat:'Scrum of Scrums',q:'Who typically attends the Scrum of Scrums meeting?',opts:['All developers from all teams','One rep (dev or SM) per team','Only Scrum Masters','PO and all team leads'],ans:1,ch:3,exp:'Scrum of Scrums is lightweight — one ambassador per team syncs dependencies and blockers. Not a management meeting.',visual:svgSoS()},
+  {cat:'SAFe',q:'What organizes multiple Agile teams in SAFe around a common mission?',opts:['Nexus Integration Team','Agile Release Train (ART)','Scrum of Scrums','LeSS Huge Area'],ans:1,ch:3,exp:'The ART is SAFe\'s core construct — 50-125 people aligned to a value stream, delivering on a PI cadence of 8-12 weeks.',visual:svgSAFe()},
+  {cat:'Scaling Frameworks',q:'TechCorp has 5 teams on one product and wants minimal overhead. Best fit?',opts:['SAFe — most comprehensive','LeSS — scales with simplicity','Disciplined Agile — most flexible','PRINCE2 Agile — best for governance'],ans:1,ch:3,exp:'LeSS is ideal for teams wanting scale without heavy ceremony. 5 teams, 1 PO, 1 backlog — simple and effective.',visual:svgLeSS()},
+  {cat:'Kanban',q:'A Kanban team\'s "In Progress" column constantly hits WIP limit. Best response?',opts:['Increase WIP limit immediately','Ignore it — WIP limits are suggestions','Investigate and remove the bottleneck','Reassign devs from other columns'],ans:2,ch:3,exp:'A persistent WIP hit signals a bottleneck. Swarm the constraint — understand why work isn\'t flowing and fix the root cause.',visual:svgWIP()},
+];
+
+const LETTERS=['A','B','C','D'];
+const OPT_CLASSES=['A','B','C','D'];
+const TIMER_SECONDS=20;
+const QS_PER_CH={0:4,1:4,2:4,3:5};
+
+// ─── STATE ─────────────────────────────────────────────────────────
+let role=null; // 'host' | 'player'
+let gameCode=null;
+let myPlayerId=null;
+let myColor=null;
+let myAvatar=null;
+let myName=null;
+
+// Host state
+let hostChapter=0;
+let hostChapterQs=[];
+let hostQIdx=0;
+let hostChaosLevel=100;
+let hostPhase='story'; // story|question|reveal|leaderboard|final
+let hostTimerInterval=null;
+let hostTimeLeft=TIMER_SECONDS;
+let hostPlayerOrder=[];
+
+// Player state
+let playerScore=0;
+let playerAnswered=false;
+
+// Polling
+let pollInterval=null;
+
+// ─── STORAGE HELPERS ───────────────────────────────────────────────
+async function storeSet(key,val,shared=true){
+  try{ await window.storage.set(key,JSON.stringify(val),shared); }catch(e){}
+}
+async function storeGet(key,shared=true){
+  try{ const r=await window.storage.get(key,shared); return r?JSON.parse(r.value):null; }catch(e){ return null; }
+}
+
+// ─── UTILS ─────────────────────────────────────────────────────────
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
+function genCode(){ return String(Math.floor(1000+Math.random()*9000)); }
+function randColor(){ return COLORS[Math.floor(Math.random()*COLORS.length)]; }
+
+// ─── LANDING ───────────────────────────────────────────────────────
+function showHost(){ role='host'; initHost(); }
+function showJoin(){ role='player'; initJoinScreen(); }
+
+// ─── HOST SETUP ────────────────────────────────────────────────────
+async function initHost(){
+  gameCode=genCode();
+  document.getElementById('hostCodeDisplay').textContent=gameCode;
+  document.getElementById('hostCodeGame').textContent=gameCode;
+  // Init game state in storage
+  await storeSet('aq:game:'+gameCode,{
+    code:gameCode, phase:'lobby', chapter:0, qIdx:0, chaos:100,
+    currentQ:null, revealAns:null, explanation:null, visual:null,
+    scores:{}, players:{}, chapterQIds:[]
+  });
+  show('hostLobby');
+  startHostLobbyPoll();
+}
+
+function startHostLobbyPoll(){
+  if(pollInterval) clearInterval(pollInterval);
+  pollInterval=setInterval(async()=>{
+    const gs=await storeGet('aq:game:'+gameCode);
+    if(!gs) return;
+    const players=gs.players||{};
+    const ids=Object.keys(players);
+    document.getElementById('playerCount').textContent=ids.length;
+    const list=document.getElementById('lobbyPlayersList');
+    const btn=document.getElementById('startGameBtn');
+    if(ids.length===0){ list.innerHTML='<div class="waiting-msg">Waiting for players...</div>'; btn.style.opacity='0.4'; btn.style.pointerEvents='none'; }
+    else{
+      list.innerHTML=ids.map(id=>{
+        const p=players[id];
+        return `<div class="player-chip"><div class="player-dot" style="background:${p.color}"></div>${p.avatar} ${p.name}</div>`;
+      }).join('');
+      btn.style.opacity='1'; btn.style.pointerEvents='auto';
+    }
+  },1500);
+}
+
+async function hostStartGame(){
+  clearInterval(pollInterval);
+  hostChapter=0; hostChaosLevel=100;
+  await hostSetChapter(0);
+  show('hostGame');
+  showHostStory();
+}
+
+async function hostSetChapter(ch){
+  hostChapter=ch;
+  const chQs=shuffle(ALL_QS.filter(q=>q.ch===ch)).slice(0,QS_PER_CH[ch]||4);
+  hostChapterQs=chQs;
+  hostQIdx=0;
+  const gs=await storeGet('aq:game:'+gameCode)||{};
+  gs.chapter=ch; gs.chapterQIds=chQs.map((_,i)=>i); gs.qIdx=0; gs.phase='story';
+  gs.scores=gs.scores||{};
+  await storeSet('aq:game:'+gameCode,gs);
+}
+
+function showHostStory(){
+  hostPhase='story';
+  const ch=CHAPTERS[hostChapter];
+  document.getElementById('hStoryEmoji').textContent=ch.emoji;
+  document.getElementById('hChapterBadge').textContent=ch.badge;
+  document.getElementById('hStoryTitle').textContent=ch.title;
+  document.getElementById('hStoryText').textContent=ch.text;
+  document.getElementById('hostStoryPanel').style.display='block';
+  document.getElementById('hostQPanel').style.display='none';
+  document.getElementById('hostExpPanel').style.display='none';
+  document.getElementById('hostLbPanel').style.display='none';
+  startHostGamePoll();
+}
+
+function startHostGamePoll(){
+  if(pollInterval) clearInterval(pollInterval);
+  pollInterval=setInterval(async()=>{
+    const gs=await storeGet('aq:game:'+gameCode);
+    if(!gs) return;
+    const players=gs.players||{};
+    // update response count
+    if(hostPhase==='question'){
+      const responses=Object.values(players).filter(p=>p.answeredQ===hostQIdx).length;
+      const total=Object.keys(players).length;
+      document.getElementById('hRespCount').textContent=responses;
+      document.getElementById('hRespTotal').textContent='/ '+total+' players';
+      document.getElementById('hRespFill').style.width=(total>0?responses/total*100:0)+'%';
+      if(total>0 && responses>=total){ hostReveal(); }
+    }
+  },1000);
+}
+
+async function hostNextQuestion(){
+  document.getElementById('hostStoryPanel').style.display='none';
+  document.getElementById('hostExpPanel').style.display='none';
+  document.getElementById('hostLbPanel').style.display='none';
+  await showHostQuestion();
+}
+
+async function showHostQuestion(){
+  hostPhase='question';
+  hostTimeLeft=TIMER_SECONDS;
+  const q=hostChapterQs[hostQIdx];
+  document.getElementById('hChapterPill').textContent=CHAPTERS[hostChapter].badge;
+  document.getElementById('hProgress').textContent=`Q ${hostQIdx+1}/${hostChapterQs.length}`;
+  document.getElementById('hQCat').textContent=q.cat;
+  document.getElementById('hQText').textContent=q.q;
+  const grid=document.getElementById('hOptsGrid'); grid.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const d=document.createElement('div');
+    d.className='opt-display opt-'+OPT_CLASSES[i];
+    d.innerHTML=`<strong>${LETTERS[i]}.</strong> ${opt}`;
+    grid.appendChild(d);
+  });
+  document.getElementById('hostQPanel').style.display='block';
+  document.getElementById('hRevealBtn').style.display='none';
+  document.getElementById('hNextBtn').style.display='none';
+  // Publish question to storage
+  const gs=await storeGet('aq:game:'+gameCode)||{};
+  gs.phase='question'; gs.qIdx=hostQIdx; gs.currentQ={cat:q.cat,text:q.q,opts:q.opts,ans:null}; gs.revealAns=null;
+  await storeSet('aq:game:'+gameCode,gs);
+  // Timer
+  clearInterval(hostTimerInterval);
+  const timerEl=document.getElementById('hTimer');
+  timerEl.className='timer-display';
+  timerEl.textContent=hostTimeLeft;
+  hostTimerInterval=setInterval(async()=>{
+    hostTimeLeft--;
+    timerEl.textContent=hostTimeLeft;
+    if(hostTimeLeft<=5) timerEl.className='timer-display urgent';
+    if(hostTimeLeft<=0){ clearInterval(hostTimerInterval); await hostReveal(); }
+  },1000);
+}
+
+async function hostReveal(){
+  if(hostPhase==='reveal') return;
+  hostPhase='reveal';
+  clearInterval(hostTimerInterval);
+  const q=hostChapterQs[hostQIdx];
+  // Highlight correct/wrong on host
+  const opts=document.querySelectorAll('.opt-display');
+  opts.forEach((o,i)=>{
+    if(i===q.ans) o.classList.add('correct-reveal');
+    else o.classList.add('wrong-reveal');
+  });
+  document.getElementById('hRevealBtn').style.display='none';
+  // Publish reveal
+  const gs=await storeGet('aq:game:'+gameCode)||{};
+  gs.phase='reveal'; gs.revealAns=q.ans;
+  // Tally scores from player answers
+  const players=gs.players||{};
+  Object.keys(players).forEach(id=>{
+    if(players[id].answeredQ===hostQIdx && players[id].lastAns===q.ans){
+      gs.scores[id]=(gs.scores[id]||0)+100;
+      hostChaosLevel=Math.max(0,hostChaosLevel-Math.floor(15/Math.max(Object.keys(players).length,1)));
+    } else if(players[id].answeredQ===hostQIdx){
+      hostChaosLevel=Math.min(100,hostChaosLevel+4);
+    }
+  });
+  gs.chaos=hostChaosLevel;
+  gs.explanation=q.exp; gs.visual=q.visual;
+  await storeSet('aq:game:'+gameCode,gs);
+  // Update chaos on host
+  document.getElementById('hChaosFill').style.width=hostChaosLevel+'%';
+  document.getElementById('hChaosVal').textContent=hostChaosLevel+'%';
+  // Show explanation
+  showHostExplanation(q,gs);
+}
+
+function showHostExplanation(q,gs){
+  document.getElementById('hostQPanel').style.display='none';
+  document.getElementById('hostExpPanel').style.display='block';
+  document.getElementById('hExpHdr').textContent=`✅ Correct: ${LETTERS[q.ans]}. ${q.opts[q.ans]}`;
+  document.getElementById('hExpTxt').textContent=q.exp;
+  document.getElementById('hExpSvg').innerHTML=q.visual||'';
+  // Leaderboard in explanation
+  renderHostLb('hLbRows',gs);
+}
+
+function renderHostLb(elId,gs){
+  const players=gs.players||{};
+  const scores=gs.scores||{};
+  const sorted=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0));
+  const ranks=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣'];
+  document.getElementById(elId).innerHTML=sorted.map((id,i)=>{
+    const p=players[id]; const sc=scores[id]||0;
+    return `<div class="lb-row ${i===0?'gold':''}">
+      <div class="lb-rank">${ranks[i]||i+1}</div>
+      <div class="lb-avatar" style="background:${p.color}">${p.avatar}</div>
+      <div class="lb-name">${p.name}</div>
+      <div class="lb-pts">${sc} pts</div>
+    </div>`;
+  }).join('');
+}
+
+async function hostAdvance(){
+  hostQIdx++;
+  if(hostQIdx>=hostChapterQs.length){
+    // End of chapter — show leaderboard
+    const gs=await storeGet('aq:game:'+gameCode)||{};
+    gs.phase='leaderboard';
+    await storeSet('aq:game:'+gameCode,gs);
+    document.getElementById('hostExpPanel').style.display='none';
+    document.getElementById('hostLbPanel').style.display='block';
+    renderHostLb('hLbRowsFull',gs);
+  } else {
+    document.getElementById('hostExpPanel').style.display='none';
+    await showHostQuestion();
+  }
+}
+
+async function hostNextChapter(){
+  hostChapter++;
+  if(hostChapter>=CHAPTERS.length){ showHostFinal(); return; }
+  await hostSetChapter(hostChapter);
+  showHostStory();
+}
+
+async function showHostFinal(){
+  clearInterval(pollInterval);
+  const gs=await storeGet('aq:game:'+gameCode)||{};
+  gs.phase='final'; gs.chaos=hostChaosLevel;
+  await storeSet('aq:game:'+gameCode,gs);
+  const players=gs.players||{}, scores=gs.scores||{};
+  const sorted=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0));
+  const ranks=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+  const saved=hostChaosLevel<50;
+  document.getElementById('hFinalEmoji').textContent=saved?'🏆':'😅';
+  document.getElementById('hFinalTitle').textContent=saved?'Company Saved!':'Good Effort!';
+  document.getElementById('hFinalSub').textContent=saved?'TechCorp is thriving thanks to your Agile mastery!':'TechCorp is still recovering... keep practicing!';
+  document.getElementById('hSavedPill').textContent=saved?`🎉 Chaos at ${hostChaosLevel}%! Mission Complete!`:`💪 Chaos at ${hostChaosLevel}%. Keep practicing!`;
+  document.getElementById('hFinalBoard').innerHTML=sorted.map((id,i)=>{
+    const p=players[id]; const sc=scores[id]||0;
+    return `<div class="final-row" style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <div style="font-size:1.3rem;width:32px;text-align:center">${ranks[i]||i+1}</div>
+      <div style="width:32px;height:32px;border-radius:50%;background:${p.color};display:flex;align-items:center;justify-content:center">${p.avatar}</div>
+      <div style="flex:1;font-weight:700;text-align:left">${p.name}</div>
+      <div style="font-size:1rem;font-weight:900;color:#ffd200">${sc} pts</div>
+    </div>`;
+  }).join('');
+  show('hostFinal');
+}
+
+// ─── JOIN ──────────────────────────────────────────────────────────
+function initJoinScreen(){
+  const row=document.getElementById('avatarPickRow'); row.innerHTML='';
+  AVATARS.forEach((a,i)=>{
+    const d=document.createElement('div');
+    d.textContent=a; d.style.cssText='font-size:1.5rem;cursor:pointer;padding:4px;border-radius:8px;border:2px solid transparent;transition:all 0.15s';
+    d.onclick=()=>{ document.querySelectorAll('#avatarPickRow div').forEach(x=>x.style.borderColor='transparent'); d.style.borderColor='#ffd200'; myAvatar=a; };
+    if(i===0){ d.style.borderColor='#ffd200'; myAvatar=a; }
+    row.appendChild(d);
+  });
+  show('joinScreen');
+}
+
+async function joinGame(){
+  const code=document.getElementById('joinCodeInput').value.trim();
+  const name=document.getElementById('joinNameInput').value.trim()||'Anon';
+  const errEl=document.getElementById('joinError');
+  errEl.style.display='none';
+  if(code.length!==4){ errEl.textContent='Enter a valid 4-digit code'; errEl.style.display='block'; return; }
+  const gs=await storeGet('aq:game:'+code);
+  if(!gs){ errEl.textContent='Game not found. Check the code!'; errEl.style.display='block'; return; }
+  gameCode=code; myName=name;
+  myColor=COLORS[Math.floor(Math.random()*COLORS.length)];
+  myPlayerId='p_'+Date.now()+'_'+Math.floor(Math.random()*999);
+  // Register player
+  gs.players=gs.players||{}; gs.scores=gs.scores||{};
+  gs.players[myPlayerId]={name,color:myColor,avatar:myAvatar,answeredQ:-1,lastAns:null};
+  gs.scores[myPlayerId]=gs.scores[myPlayerId]||0;
+  await storeSet('aq:game:'+code,gs);
+  playerScore=gs.scores[myPlayerId]||0;
+  document.getElementById('pHeaderAvatar').textContent=myAvatar;
+  document.getElementById('pHeaderName').textContent=name;
+  document.getElementById('pHeaderScore').textContent=playerScore;
+  show('playerGame');
+  startPlayerPoll();
+}
+
+// ─── PLAYER POLL ───────────────────────────────────────────────────
+let lastPhaseKey='';
+function startPlayerPoll(){
+  if(pollInterval) clearInterval(pollInterval);
+  pollInterval=setInterval(async()=>{
+    const gs=await storeGet('aq:game:'+gameCode);
+    if(!gs) return;
+    playerScore=gs.scores?.[myPlayerId]||0;
+    document.getElementById('pHeaderScore').textContent=playerScore;
+    const phaseKey=gs.phase+'_'+gs.chapter+'_'+gs.qIdx;
+    if(phaseKey===lastPhaseKey) return;
+    lastPhaseKey=phaseKey;
+    renderPlayerView(gs);
+  },1200);
+}
+
+function renderPlayerView(gs){
+  const body=document.getElementById('playerBody');
+  if(gs.phase==='lobby'||gs.phase==='story'){
+    body.innerHTML=`<div class="waiting-card"><div class="waiting-spinner">⏳</div><div style="font-weight:700;margin-bottom:6px">${gs.phase==='lobby'?'Joined! Waiting for host to start...':'📖 '+CHAPTERS[gs.chapter]?.title}</div><div style="font-size:0.82rem;color:#666">${gs.phase==='lobby'?'Get ready!':'Host is reading the story...'}</div></div>`;
+  } else if(gs.phase==='question'){
+    const q=gs.currentQ; if(!q) return;
+    playerAnswered=(gs.players?.[myPlayerId]?.answeredQ===gs.qIdx);
+    body.innerHTML=`
+      <div class="p-q-card"><div class="p-q-cat">${q.cat}</div><div class="p-q-text">${q.text}</div></div>
+      <div class="p-opts" id="pOpts">
+        ${q.opts.map((o,i)=>`<button class="p-opt ${OPT_CLASSES[i]}${playerAnswered?' disabled':''}" ${playerAnswered?'disabled':''} onclick="playerAnswer(${i},${gs.qIdx})"><strong>${LETTERS[i]}.</strong> ${o}</button>`).join('')}
+      </div>
+      ${playerAnswered?`<div class="waiting-card" style="padding:14px;text-align:center"><div style="font-size:1.2rem;margin-bottom:4px">✅ Answer submitted!</div><div style="font-size:0.8rem;color:#666">Waiting for others...</div></div>`:''}
+    `;
+  } else if(gs.phase==='reveal'){
+    const q=gs.currentQ; const ans=gs.revealAns;
+    const myAns=gs.players?.[myPlayerId]?.lastAns;
+    const wasAnswered=gs.players?.[myPlayerId]?.answeredQ===gs.qIdx;
+    const correct=wasAnswered&&myAns===ans;
+    body.innerHTML=`
+      <div class="p-q-card"><div class="p-q-cat">${q?.cat||''}</div><div class="p-q-text">${q?.text||''}</div></div>
+      <div class="p-opts">
+        ${(q?.opts||[]).map((o,i)=>`<button class="p-opt ${OPT_CLASSES[i]} ${i===ans?'reveal-correct':''} ${wasAnswered&&myAns===i&&i!==ans?'selected-wrong':''}" disabled><strong>${LETTERS[i]}.</strong> ${o}</button>`).join('')}
+      </div>
+      <div class="p-exp-card">
+        <div class="p-exp-hdr ${wasAnswered?(correct?'c':'w'):'w'}">${wasAnswered?(correct?'✅ Correct! +100 pts':'❌ Not quite...'):'⏰ Time ran out'}</div>
+        <div class="p-exp-txt">${gs.explanation||''}</div>
+      </div>
+      ${renderPlayerLb(gs)}
+    `;
+  } else if(gs.phase==='leaderboard'){
+    body.innerHTML=`<div style="text-align:center;margin-bottom:12px;font-size:1.2rem;font-weight:800;color:#ffd200">🏅 Chapter Complete!</div>${renderPlayerLb(gs)}<div class="waiting-card" style="padding:12px;text-align:center;margin-top:8px"><div style="font-size:0.85rem;color:#666">Waiting for host to continue...</div></div>`;
+  } else if(gs.phase==='final'){
+    clearInterval(pollInterval);
+    const saved=(gs.chaos||100)<50;
+    body.innerHTML=`<div style="text-align:center"><div style="font-size:3rem;margin-bottom:8px">${saved?'🏆':'😅'}</div><div style="font-size:1.4rem;font-weight:900;color:#ffd200;margin-bottom:6px">${saved?'Company Saved!':'Good Effort!'}</div><div style="color:#aaa;margin-bottom:16px;font-size:0.88rem">Your score: ${playerScore} pts</div></div>${renderPlayerLb(gs)}`;
+  }
+}
+
+function renderPlayerLb(gs){
+  const players=gs.players||{}, scores=gs.scores||{};
+  const sorted=Object.keys(players).sort((a,b)=>(scores[b]||0)-(scores[a]||0));
+  const ranks=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+  return `<div class="p-lb"><div class="p-lb-title">Live Leaderboard</div>${sorted.map((id,i)=>`<div class="p-lb-row ${id===myPlayerId?'p-lb-me':''}"><span>${ranks[i]||i+1}</span><span style="margin:0 6px">${players[id].avatar}</span><span style="flex:1">${players[id].name}${id===myPlayerId?' (you)':''}</span><span style="color:#ffd200;font-weight:800">${scores[id]||0} pts</span></div>`).join('')}</div>`;
+}
+
+async function playerAnswer(chosen,qIdx){
+  if(playerAnswered) return;
+  playerAnswered=true;
+  const gs=await storeGet('aq:game:'+gameCode)||{};
+  if(!gs.players) return;
+  gs.players[myPlayerId]=gs.players[myPlayerId]||{};
+  gs.players[myPlayerId].answeredQ=qIdx;
+  gs.players[myPlayerId].lastAns=chosen;
+  await storeSet('aq:game:'+gameCode,gs);
+  // Update UI instantly
+  document.querySelectorAll('.p-opt').forEach(b=>b.disabled=true);
+  const btn=document.querySelectorAll('.p-opt')[chosen];
+  if(btn) btn.classList.add('selected-correct'); // will be corrected on reveal
+}
+</script>
+</body>
+</html>
