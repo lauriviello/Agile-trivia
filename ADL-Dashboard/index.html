@@ -1,316 +1,628 @@
-import { useState, useMemo } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADL Delivery Dashboard – Laura Riviello</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-const RAW_DATA = [
-  // David Rojas
-  { key:"AGILE-74", assignee:"David Rojas", summary:"[All] Epics Naming Convention [H1 2026]", status:"In Progress", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-73", assignee:"David Rojas", summary:"[All] Standardize Mattermost Bookmarks [Q1 2026]", status:"In Progress", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-72", assignee:"David Rojas", summary:"[All] Super Bowl 2026 – Delivery Support Survey [Q1 2026]", status:"In Progress", bu:["All"], focus:"Cross-BU Coordination" },
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --primary: #58a6ff;
+      --primary-light: #1c2a3a;
+      --todo-bg: #21262d;   --todo-text: #8b949e;
+      --inprogress-bg: #1c2a3a; --inprogress-text: #58a6ff;
+      --done-bg: #0d2219;   --done-text: #3fb950;
+      --radius: 6px;
+      --shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
 
-  // Javo Santillán
-  { key:"AGILE-235", assignee:"Javo Santillán", summary:"[SOL][CAS] Kraken 2 Steering Group Collaboration", status:"In Progress", bu:["Solutions","Cashier"], focus:"Technical Governance" },
-  { key:"AGILE-34", assignee:"Javo Santillán", summary:"[SOL][SDD] Support Spec-Development Driven initiative", status:"In Progress", bu:["Solutions"], focus:"Engineering Practices" },
-  { key:"AGILE-31", assignee:"Javo Santillán", summary:"[SOL][CAS] Low-Level Design & Architect Empowerment", status:"To Do", bu:["Solutions","Cashier"], focus:"Technical Governance" },
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
-  // Laura Riviello
-  { key:"AGILE-149", assignee:"Laura Riviello", summary:"[Websites] Pilot VENUS Automation Test Plan [H1 2025]", status:"To Do", bu:["Websites"], focus:"QA & Automation" },
-  { key:"AGILE-148", assignee:"Laura Riviello", summary:"[Websites] Synchronise Sprints [Q3 2025]", status:"Cancelled", bu:["Websites"], focus:"Agile Practices" },
-  { key:"AGILE-147", assignee:"Laura Riviello", summary:"[ALL] Checklist System", status:"To Do", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-146", assignee:"Laura Riviello", summary:"[Design] Improvements into Craft [H1 2026]", status:"Done", bu:["Design"], focus:"Tooling & Adoption" },
-  { key:"AGILE-145", assignee:"Laura Riviello", summary:"[Websites] Retrospective Pandora - Cashier", status:"Done", bu:["Websites"], focus:"Team Coaching" },
-  { key:"AGILE-144", assignee:"Laura Riviello", summary:"[Websites, Cashier] QuickDeposit Retrospective [H1 2026]", status:"In Progress", bu:["Websites","Cashier"], focus:"Team Coaching" },
-  { key:"AGILE-143", assignee:"Laura Riviello", summary:"[Design & SB] Improve Design and Back Office tool", status:"To Do", bu:["Design"], focus:"Tooling & Adoption" },
-  { key:"AGILE-142", assignee:"Laura Riviello", summary:"[PAM] Handover from Maxi to Lau [H1 2026]", status:"In Progress", bu:["PAM"], focus:"Team Coaching" },
-  { key:"AGILE-137", assignee:"Laura Riviello", summary:"[Design] Migration to Jira Cloud", status:"To Do", bu:["Design"], focus:"Standardization & Tooling" },
-  { key:"AGILE-131", assignee:"Laura Riviello", summary:"[Digital] Jira Improvements", status:"To Do", bu:["Digital"], focus:"Standardization & Tooling" },
-  { key:"AGILE-56", assignee:"Laura Riviello", summary:"[PAM] Madrid Workshop support", status:"In Progress", bu:["PAM"], focus:"Engineering Practices" },
-  { key:"AGILE-55", assignee:"Laura Riviello", summary:"[PAM] Iris support Release plan", status:"In Progress", bu:["PAM"], focus:"Release Management" },
-  { key:"AGILE-54", assignee:"Laura Riviello", summary:"[Design&Websites] ShadCn initiative support", status:"In Progress", bu:["Design","Websites"], focus:"Engineering Practices" },
-  { key:"AGILE-47", assignee:"Laura Riviello", summary:"[All] Sprint naming convention [H1 2026]", status:"In Progress", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-46", assignee:"Laura Riviello", summary:"[Lau Goals]", status:"To Do", bu:["Delivery"], focus:"ADL Goals" },
-  { key:"AGILE-41", assignee:"Laura Riviello", summary:"[PlayerExperience] Initiative Lifecycle: idea to impact", status:"On Hold", bu:["PlayerExperience"], focus:"Process Design" },
+    /* ── Header ── */
+    .header {
+      background: #0d1117;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
+    .header .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .header-right { display: flex; gap: 10px; align-items: center; }
+    .refresh-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s;
+    }
+    .refresh-btn:hover { background: rgba(255,255,255,0.25); }
+    .updated-at { font-size: 11px; opacity: 0.7; }
 
-  // Maximiliano Cucchetti
-  { key:"AGILE-170", assignee:"Maximiliano Cucchetti", summary:"[All] Legacy DB Decommission - ADL Support [H2 2025]", status:"Done", bu:["All"], focus:"Technical Governance" },
-  { key:"AGILE-169", assignee:"Maximiliano Cucchetti", summary:"[PAM] Nexus Review [H1 2026]", status:"In Progress", bu:["PAM"], focus:"Agile Practices" },
-  { key:"AGILE-168", assignee:"Maximiliano Cucchetti", summary:"[Delivery] Company Objectives Alignment [H2 2025]", status:"To Do", bu:["Delivery"], focus:"Strategic Alignment" },
-  { key:"AGILE-167", assignee:"Maximiliano Cucchetti", summary:"[Delivery] Agile Induction Slides [H1 2026]", status:"In Progress", bu:["Delivery"], focus:"Team Coaching" },
-  { key:"AGILE-166", assignee:"Maximiliano Cucchetti", summary:"[All] Madrid Workshop 2025 Action Items [H1 2026]", status:"In Progress", bu:["All"], focus:"Engineering Practices" },
-  { key:"AGILE-165", assignee:"Maximiliano Cucchetti", summary:"[All] Experimentation Framework - PAM PO [H1 2026]", status:"In Progress", bu:["PAM"], focus:"Process Design" },
-  { key:"AGILE-164", assignee:"Maximiliano Cucchetti", summary:"[All] Meeting migration to B2B [H1 2026]", status:"In Progress", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-163", assignee:"Maximiliano Cucchetti", summary:"[All] Offboarding process for Design Tools [H1 2026]", status:"In Progress", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-162", assignee:"Maximiliano Cucchetti", summary:"[Delivery] ADLs Performance & OKRs Q1 2026", status:"In Progress", bu:["Delivery"], focus:"ADL Goals" },
-  { key:"AGILE-161", assignee:"Maximiliano Cucchetti", summary:"[All] Jira DEV Projects Updates 2026 [H1 2026]", status:"In Progress", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-160", assignee:"Maximiliano Cucchetti", summary:"[All] Engineering Practices Workshop Madrid 2026", status:"In Progress", bu:["All"], focus:"Engineering Practices" },
-  { key:"AGILE-159", assignee:"Maximiliano Cucchetti", summary:"[All] Miro Support & SSO with Entra ID [H1 2026]", status:"In Progress", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-158", assignee:"Maximiliano Cucchetti", summary:"[Delivery] Self-Learning Small Initiatives [H1 2026]", status:"In Progress", bu:["Delivery"], focus:"ADL Goals" },
-  { key:"AGILE-157", assignee:"Maximiliano Cucchetti", summary:"[Delivery] Delivery Quarterly Update [H1 2026]", status:"In Progress", bu:["Delivery"], focus:"Strategic Alignment" },
-  { key:"AGILE-156", assignee:"Maximiliano Cucchetti", summary:"[Delivery] Delivery All Hands with MC [H1 2026]", status:"In Progress", bu:["Delivery"], focus:"Strategic Alignment" },
-  { key:"AGILE-155", assignee:"Maximiliano Cucchetti", summary:"[Cashier] Cashier Workshop [H1 2026]", status:"In Progress", bu:["Cashier"], focus:"Team Coaching" },
-  { key:"AGILE-154", assignee:"Maximiliano Cucchetti", summary:"[All] Distribution List Updates [H2 2026]", status:"To Do", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-153", assignee:"Maximiliano Cucchetti", summary:"[Delivery] AI in Agile Delivery [H1 2026]", status:"In Progress", bu:["Delivery"], focus:"Innovation & AI" },
+    /* ── Layout ── */
+    .container { max-width: 1280px; margin: 0 auto; padding: 24px 32px; }
 
-  // Szellmann Réka
-  { key:"AGILE-68", assignee:"Szellmann Réka", summary:"[ADL] JIRA migration", status:"To Do", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-20", assignee:"Szellmann Réka", summary:"[Reka Goal 5] Move Delivery Confluence server to cloud Q4 2026", status:"To Do", bu:["Delivery"], focus:"Standardization & Tooling" },
-  { key:"AGILE-16", assignee:"Szellmann Réka", summary:"[Reka Goal 4] Enhance transparency in release processes SB & Websites Q3 2026", status:"To Do", bu:["SB","Websites"], focus:"Release Management" },
-  { key:"AGILE-9", assignee:"Szellmann Réka", summary:"[Reka Goal 3] Jira Cloud Setup & Workflow Alignment Q4 2026", status:"To Do", bu:["All"], focus:"Standardization & Tooling" },
-  { key:"AGILE-5", assignee:"Szellmann Réka", summary:"[Reka Goal 2] Enhance visibility with sprint naming SB BU Q4 2026", status:"To Do", bu:["SB"], focus:"Standardization & Tooling" },
-  { key:"AGILE-1", assignee:"Szellmann Réka", summary:"[Reka Goal 1] Elevate Executive Communication & Cross-Functional Alignment Q4 2026", status:"To Do", bu:["All"], focus:"Strategic Alignment" },
+    /* ── Stats cards ── */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid transparent;
+    }
+    .stat-card.total   { border-left-color: var(--primary); }
+    .stat-card.todo    { border-left-color: #8b949e; }
+    .stat-card.prog    { border-left-color: #58a6ff; }
+    .stat-card.done    { border-left-color: #3fb950; }
+    .stat-card .num { font-size: 28px; font-weight: 700; line-height: 1; }
+    .stat-card .label { color: var(--muted); font-size: 12px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Focus Area tabs ── */
+    .section-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+    .tabs-wrap { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid var(--border); padding: 0 8px; }
+    .tab {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      border-bottom: 3px solid transparent;
+      transition: color 0.15s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab:hover { color: var(--primary); }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab .badge {
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .tab.active .badge { background: var(--primary-light); color: var(--primary); }
+
+    /* ── Filters row ── */
+    .filters {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 12px 16px;
+    }
+    .filters label { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .filters select, .filters input {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px 10px;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--surface-2);
+      outline: none;
+      transition: border 0.15s;
+      color-scheme: dark;
+    }
+    .filters select:focus, .filters input:focus { border-color: var(--primary); }
+    .filters input { width: 220px; }
+    .filter-group { display: flex; align-items: center; gap: 6px; }
+    .clear-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .clear-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ── Epics section ── */
+    .epics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .epic-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      border-left: 4px solid var(--primary);
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    .epic-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.15); }
+    .epic-card.filtered-out { opacity: 0.3; pointer-events: none; }
+    .epic-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .epic-key { font-size: 11px; font-weight: 700; color: var(--primary); letter-spacing: 0.3px; text-decoration: none; }
+    .epic-key:hover { text-decoration: underline; }
+    .epic-summary { font-size: 13px; font-weight: 600; color: var(--text); margin: 4px 0 8px; line-height: 1.4; }
+    .epic-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .focus-chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #1c2a3a;
+      color: #58a6ff;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .result-count { padding: 10px 16px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--surface-2);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:hover { background: #252c35; }
+    thead th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+    thead th.sorted .sort-arrow { opacity: 1; }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1c2128; }
+    tbody tr.hidden { display: none; }
+
+    td { padding: 10px 14px; vertical-align: middle; }
+
+    .td-key a {
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--primary);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .td-key a:hover { text-decoration: underline; }
+
+    .td-summary { max-width: 380px; font-size: 13px; line-height: 1.4; }
+    .td-epic a {
+      font-size: 11px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .td-epic a:hover { text-decoration: underline; }
+    .epic-title { font-size: 11px; color: var(--muted); display: block; margin-top: 1px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .status-badge.todo    { background: var(--todo-bg);       color: var(--todo-text); }
+    .status-badge.prog    { background: var(--inprogress-bg); color: var(--inprogress-text); }
+    .status-badge.done    { background: var(--done-bg);       color: var(--done-text); }
+
+    .assignee-cell { font-size: 12px; white-space: nowrap; color: var(--text); }
+    .assignee-cell.unassigned { color: var(--muted); font-style: italic; }
+
+    .focus-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    /* Focus area color palette – dark mode */
+    .fa-pam         { background: #2d2a00; color: #d4a72c; }
+    .fa-cashier     { background: #2d1700; color: #f0883e; }
+    .fa-websites    { background: #0d2b0d; color: #3fb950; }
+    .fa-marketing   { background: #2d0a1a; color: #f778ba; }
+    .fa-sportsbook  { background: #0d1a3a; color: #79c0ff; }
+    .fa-uiux        { background: #0d1f2d; color: #56d3fa; }
+    .fa-digital     { background: #1a0d2d; color: #d2a8ff; }
+    .fa-all         { background: #21262d; color: #8b949e; }
+    .fa-general     { background: #21262d; color: #8b949e; }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 48px 24px; color: var(--muted); }
+    .empty-icon { font-size: 40px; margin-bottom: 8px; }
+    .empty p { font-size: 14px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .container { padding: 16px; }
+      .td-epic, .td-assignee { display: none; }
+      .header { padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div>
+    <h1>ADL Delivery Dashboard</h1>
+    <div class="meta">Laura Riviello · foshtech.atlassian.net · label: delivery-laura</div>
+  </div>
+  <div class="header-right">
+    <span class="updated-at" id="updatedAt"></span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card total">
+      <div class="num" id="statTotal">–</div>
+      <div class="label">Total Tasks</div>
+    </div>
+    <div class="stat-card todo">
+      <div class="num" id="statTodo">–</div>
+      <div class="label">To Do</div>
+    </div>
+    <div class="stat-card prog">
+      <div class="num" id="statProg">–</div>
+      <div class="label">In Progress</div>
+    </div>
+    <div class="stat-card done">
+      <div class="num" id="statDone">–</div>
+      <div class="label">Done</div>
+    </div>
+  </div>
+
+  <!-- Epics overview -->
+  <div class="section-title">Epics</div>
+  <div class="epics-grid" id="epicsGrid"></div>
+
+  <!-- Tasks section -->
+  <div class="section-title" style="margin-top:8px">Tasks</div>
+  <div class="tabs-wrap">
+    <div class="tabs" id="focusTabs"></div>
+    <div class="filters">
+      <div class="filter-group">
+        <label>Epic</label>
+        <select id="epicFilter">
+          <option value="all">All Epics</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Status</label>
+        <select id="statusFilter">
+          <option value="all">All Statuses</option>
+          <option value="To Do">To Do</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Done">Done</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Assignee</label>
+        <select id="assigneeFilter">
+          <option value="all">All Assignees</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <input type="text" id="searchInput" placeholder="Search tasks..." />
+      </div>
+      <button class="clear-btn" onclick="clearFilters()">Clear filters</button>
+    </div>
+  </div>
+
+  <div class="table-wrap" style="margin-top:12px">
+    <div class="result-count" id="resultCount"></div>
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortBy('key')" data-col="key">Key <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('summary')" data-col="summary">Summary <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('focusArea')" data-col="focusArea">Focus Area <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('status')" data-col="status">Status <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('epic')" data-col="epic" class="td-epic">Epic <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('assignee')" data-col="assignee" class="td-assignee">Assignee <span class="sort-arrow">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="tasksBody"></tbody>
+    </table>
+    <div class="empty" id="emptyState" style="display:none">
+      <div class="empty-icon">🔍</div>
+      <p>No tasks match the current filters.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Data ────────────────────────────────────────────────────────────────────
+
+const EPICS = [
+  { key:"AGILE-74",  url:"https://foshtech.atlassian.net/browse/AGILE-74",  summary:"[All] Epics Naming Convention [H1 2026]",                        status:"In Progress", focusArea:"All",         labels:["H1","delivery-laura","delivery-mattp","delivery-maxi"] },
+  { key:"AGILE-118", url:"https://foshtech.atlassian.net/browse/AGILE-118", summary:"[All] Jira DEV Projects Updates 2026 [H1 2026]",                  status:"In Progress", focusArea:"All",         labels:["H1","delivery-david","delivery-laura"] },
+  { key:"AGILE-155", url:"https://foshtech.atlassian.net/browse/AGILE-155", summary:"[Cashier] Cashier Workshop [H1 2026]",                            status:"In Progress", focusArea:"Cashier",     labels:["H1","delivery-edu","delivery-laura"] },
+  { key:"AGILE-161", url:"https://foshtech.atlassian.net/browse/AGILE-161", summary:"[All] Jira DEV Projects Updates 2026 [H1 2026] (v2)",             status:"In Progress", focusArea:"All",         labels:["H1","delivery-david","delivery-laura"] },
+  { key:"AGILE-163", url:"https://foshtech.atlassian.net/browse/AGILE-163", summary:"[All] Offboarding process for Design Tools [H1 2026]",            status:"In Progress", focusArea:"All",         labels:["delivery-laura"] },
+  { key:"AGILE-165", url:"https://foshtech.atlassian.net/browse/AGILE-165", summary:"[All] Experimentation Framework – Support for PAM PO [H1 2026]",  status:"In Progress", focusArea:"All",         labels:["delivery-laura"] },
+  { key:"AGILE-169", url:"https://foshtech.atlassian.net/browse/AGILE-169", summary:"[PAM] Nexus Review [H1 2026]",                                    status:"In Progress", focusArea:"PAM",         labels:["delivery-laura"] },
 ];
 
-const COLORS = {
-  "David Rojas": "#6366f1",
-  "Javo Santillán": "#f59e0b",
-  "Laura Riviello": "#10b981",
-  "Maximiliano Cucchetti": "#ef4444",
-  "Szellmann Réka": "#8b5cf6",
-};
-
-const STATUS_COLORS = {
-  "In Progress": { bg: "#fef3c7", text: "#92400e", dot: "#f59e0b" },
-  "To Do": { bg: "#eff6ff", text: "#1e40af", dot: "#3b82f6" },
-  "Done": { bg: "#f0fdf4", text: "#166534", dot: "#22c55e" },
-  "Cancelled": { bg: "#f9fafb", text: "#6b7280", dot: "#9ca3af" },
-  "On Hold": { bg: "#fdf4ff", text: "#6b21a8", dot: "#a855f7" },
-};
-
-const FOCUS_COLORS = [
-  "#6366f1","#f59e0b","#10b981","#ef4444","#8b5cf6",
-  "#ec4899","#14b8a6","#f97316","#0ea5e9","#84cc16"
+const TASKS = [
+  // ── AGILE-74 children ──
+  { key:"AGILE-75",  url:"https://foshtech.atlassian.net/browse/AGILE-75",  summary:"[UI/UX Design] – Epic naming convention Support & Follow-up",                    status:"In Progress", assignee:"Laura Riviello",               epic:"AGILE-74",  focusArea:"UI/UX Design", labels:[] },
+  { key:"AGILE-76",  url:"https://foshtech.atlassian.net/browse/AGILE-76",  summary:"[Digital] – Epic naming convention Support & Follow-up",                         status:"To Do",       assignee:"Unassigned",                   epic:"AGILE-74",  focusArea:"Digital",      labels:[] },
+  { key:"AGILE-77",  url:"https://foshtech.atlassian.net/browse/AGILE-77",  summary:"[Cashier] – Epic naming convention Support & Follow-up",                          status:"To Do",       assignee:"Eduardo Gonzales",             epic:"AGILE-74",  focusArea:"Cashier",      labels:[] },
+  { key:"AGILE-78",  url:"https://foshtech.atlassian.net/browse/AGILE-78",  summary:"[PAM] – Epic naming convention Support & Follow-up",                              status:"In Progress", assignee:"Laura Riviello",               epic:"AGILE-74",  focusArea:"PAM",          labels:[] },
+  { key:"AGILE-79",  url:"https://foshtech.atlassian.net/browse/AGILE-79",  summary:"[SportsBook] – Epic naming convention Support & Follow-up",                       status:"To Do",       assignee:"Unassigned",                   epic:"AGILE-74",  focusArea:"SportsBook",   labels:[] },
+  { key:"AGILE-80",  url:"https://foshtech.atlassian.net/browse/AGILE-80",  summary:"[Websites] – Epic naming convention Support & Follow-up",                         status:"To Do",       assignee:"Laura Riviello",               epic:"AGILE-74",  focusArea:"Websites",     labels:[] },
+  { key:"AGILE-81",  url:"https://foshtech.atlassian.net/browse/AGILE-81",  summary:"Share on thursday ADL weekly",                                                   status:"Done",        assignee:"David Rojas",                  epic:"AGILE-74",  focusArea:"General",      labels:[] },
+  { key:"AGILE-82",  url:"https://foshtech.atlassian.net/browse/AGILE-82",  summary:"[Marketing] – Epic naming convention Support & Follow-up [H1 2026]",              status:"In Progress", assignee:"David Rojas",                  epic:"AGILE-74",  focusArea:"Marketing",    labels:[] },
+  { key:"AGILE-83",  url:"https://foshtech.atlassian.net/browse/AGILE-83",  summary:"Double check with Ariel before to go with announcement",                         status:"Done",        assignee:"Laura Riviello",               epic:"AGILE-74",  focusArea:"General",      labels:[] },
+  { key:"AGILE-84",  url:"https://foshtech.atlassian.net/browse/AGILE-84",  summary:"Make an announcement",                                                           status:"Done",        assignee:"Laura Riviello",               epic:"AGILE-74",  focusArea:"General",      labels:[] },
+  { key:"AGILE-85",  url:"https://foshtech.atlassian.net/browse/AGILE-85",  summary:"Sharing and getting feedback from Stander (Product) to get their support",       status:"Done",        assignee:"Laura Riviello",               epic:"AGILE-74",  focusArea:"General",      labels:[] },
+  { key:"AGILE-86",  url:"https://foshtech.atlassian.net/browse/AGILE-86",  summary:"Getting feedback from Managers – Draft is ready",                                status:"Done",        assignee:"David Rojas",                  epic:"AGILE-74",  focusArea:"General",      labels:[] },
+  // ── AGILE-118 children ──
+  { key:"AGILE-115", url:"https://foshtech.atlassian.net/browse/AGILE-115", summary:"[MKT] Supervision of MINC project creation [Q2 2026]",                           status:"In Progress", assignee:"David Rojas",                  epic:"AGILE-118", focusArea:"Marketing",    labels:["Q2"] },
+  // ── AGILE-169 children ──
+  { key:"AGILE-224", url:"https://foshtech.atlassian.net/browse/AGILE-224", summary:"[PAM] Nexus Review + VoC Follow Up [Q2 2026]",                                   status:"Done",        assignee:"Maximiliano Alberto Cucchetti",epic:"AGILE-169", focusArea:"PAM",          labels:["Q2"] },
+  { key:"AGILE-225", url:"https://foshtech.atlassian.net/browse/AGILE-225", summary:"[PAM] Nexus Review [Q1 2026]",                                                   status:"Done",        assignee:"Maximiliano Alberto Cucchetti",epic:"AGILE-169", focusArea:"PAM",          labels:["Q1"] },
+  { key:"AGILE-226", url:"https://foshtech.atlassian.net/browse/AGILE-226", summary:"[PAM] Nexus Review + VoC Follow Up [Q3 2026]",                                   status:"To Do",       assignee:"Laura Riviello",               epic:"AGILE-169", focusArea:"PAM",          labels:["Q3"] },
+  // ── Standalone tasks (delivery-laura label) ──
+  { key:"AGILE-150", url:"https://foshtech.atlassian.net/browse/AGILE-150", summary:"[Cashier] QuickDeposit Retrospective [Q2 2026]",                                 status:"In Progress", assignee:"Eduardo Gonzales",             epic:null,        focusArea:"Cashier",      labels:["Q2"] },
+  { key:"AGILE-114", url:"https://foshtech.atlassian.net/browse/AGILE-114", summary:"[ALL] – Supporting new Issue Type: HotFix initiative",                           status:"Done",        assignee:"David Rojas",                  epic:null,        focusArea:"All",          labels:["Q1"] },
 ];
 
-const adls = [...new Set(RAW_DATA.map(d => d.assignee))];
-const focusAreas = [...new Set(RAW_DATA.map(d => d.focus))];
+// ── State ────────────────────────────────────────────────────────────────────
 
-function initials(name) {
-  return name.split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase();
+let activeFocus   = "All";
+let activeStatus  = "all";
+let activeEpic    = "all";
+let activeAssignee= "all";
+let searchQuery   = "";
+let sortCol       = "key";
+let sortDir       = 1;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function statusClass(s) {
+  if (s === "To Do")       return "todo";
+  if (s === "In Progress") return "prog";
+  if (s === "Done")        return "done";
+  return "todo";
 }
 
-function Avatar({ name, size = 40 }) {
-  const color = COLORS[name] || "#6366f1";
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: "50%",
-      background: color, color: "#fff",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontWeight: 700, fontSize: size * 0.35, flexShrink: 0,
-      border: "2px solid #fff", boxShadow: "0 1px 4px rgba(0,0,0,.15)"
-    }}>{initials(name)}</div>
-  );
+function focusClass(fa) {
+  const map = {
+    "PAM":"fa-pam","Cashier":"fa-cashier","Websites":"fa-websites",
+    "Marketing":"fa-marketing","SportsBook":"fa-sportsbook",
+    "UI/UX Design":"fa-uiux","Digital":"fa-digital",
+    "All":"fa-all","General":"fa-general"
+  };
+  return map[fa] || "fa-general";
 }
 
-function StatusBadge({ status }) {
-  const s = STATUS_COLORS[status] || STATUS_COLORS["To Do"];
-  return (
-    <span style={{
-      background: s.bg, color: s.text, borderRadius: 20,
-      padding: "2px 10px", fontSize: 11, fontWeight: 600,
-      display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap"
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot, display:"inline-block" }} />
-      {status}
-    </span>
-  );
+function epicSummary(key) {
+  const e = EPICS.find(e => e.key === key);
+  return e ? e.summary : "—";
 }
 
-function DonutChart({ data, size = 120 }) {
-  const total = data.reduce((s, d) => s + d.value, 0);
-  if (!total) return null;
-  let cumulative = 0;
-  const slices = data.map((d, i) => {
-    const pct = d.value / total;
-    const start = cumulative;
-    cumulative += pct;
-    return { ...d, start, pct, color: FOCUS_COLORS[i % FOCUS_COLORS.length] };
-  });
-  const r = size / 2, ri = r * 0.6, cx = r, cy = r;
-  function arc(pct, start) {
-    const a0 = (start * 2 * Math.PI) - Math.PI / 2;
-    const a1 = ((start + pct) * 2 * Math.PI) - Math.PI / 2;
-    const x0o = cx + r * Math.cos(a0), y0o = cy + r * Math.sin(a0);
-    const x1o = cx + r * Math.cos(a1), y1o = cy + r * Math.sin(a1);
-    const x0i = cx + ri * Math.cos(a1), y0i = cy + ri * Math.sin(a1);
-    const x1i = cx + ri * Math.cos(a0), y1i = cy + ri * Math.sin(a0);
-    const lg = pct > 0.5 ? 1 : 0;
-    return `M ${x0o} ${y0o} A ${r} ${r} 0 ${lg} 1 ${x1o} ${y1o} L ${x0i} ${y0i} A ${ri} ${ri} 0 ${lg} 0 ${x1i} ${y1i} Z`;
-  }
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {slices.map((s, i) => (
-        <path key={i} d={arc(s.pct, s.start)} fill={s.color} opacity={0.9}>
-          <title>{s.label}: {s.value}</title>
-        </path>
-      ))}
-      <text x={cx} y={cy - 6} textAnchor="middle" fontSize={size*0.2} fontWeight="700" fill="#1f2937">{total}</text>
-      <text x={cx} y={cy + 10} textAnchor="middle" fontSize={size*0.1} fill="#6b7280">epics</text>
-    </svg>
-  );
+function allFocusAreas() {
+  const set = new Set(["All", ...TASKS.map(t => t.focusArea).sort()]);
+  return [...set];
 }
 
-export default function App() {
-  const [selected, setSelected] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [focusFilter, setFocusFilter] = useState("All");
-  const [search, setSearch] = useState("");
+function allAssignees() {
+  const set = new Set(TASKS.map(t => t.assignee).sort());
+  return [...set];
+}
 
-  const statuses = ["All", "In Progress", "To Do", "Done", "Cancelled", "On Hold"];
-
-  const filteredData = useMemo(() => {
-    return RAW_DATA.filter(d => {
-      if (selected && d.assignee !== selected) return false;
-      if (statusFilter !== "All" && d.status !== statusFilter) return false;
-      if (focusFilter !== "All" && d.focus !== focusFilter) return false;
-      if (search && !d.summary.toLowerCase().includes(search.toLowerCase())) return false;
-      return true;
+function filteredTasks() {
+  return TASKS
+    .filter(t => activeFocus === "All" || t.focusArea === activeFocus)
+    .filter(t => activeStatus === "all" || t.status === activeStatus)
+    .filter(t => activeEpic   === "all" || t.epic === activeEpic || (activeEpic === "__none__" && !t.epic))
+    .filter(t => activeAssignee === "all" || t.assignee === activeAssignee)
+    .filter(t => !searchQuery   || t.summary.toLowerCase().includes(searchQuery) || t.key.toLowerCase().includes(searchQuery))
+    .sort((a, b) => {
+      let av = a[sortCol] || "", bv = b[sortCol] || "";
+      if (sortCol === "key") {
+        av = parseInt(av.replace("AGILE-", ""));
+        bv = parseInt(bv.replace("AGILE-", ""));
+      }
+      if (av < bv) return -sortDir;
+      if (av > bv) return  sortDir;
+      return 0;
     });
-  }, [selected, statusFilter, focusFilter, search]);
+}
 
-  const byADL = useMemo(() => {
-    return adls.map(name => {
-      const epics = RAW_DATA.filter(d => d.assignee === name);
-      const focusCounts = {};
-      epics.forEach(e => { focusCounts[e.focus] = (focusCounts[e.focus] || 0) + 1; });
-      const topFocus = Object.entries(focusCounts).sort((a,b) => b[1]-a[1]).slice(0,4);
-      const inProgress = epics.filter(e => e.status === "In Progress").length;
-      const done = epics.filter(e => e.status === "Done").length;
-      const todo = epics.filter(e => e.status === "To Do").length;
-      return { name, total: epics.length, inProgress, done, todo, topFocus, focusCounts };
-    });
-  }, []);
+// ── Render ───────────────────────────────────────────────────────────────────
 
-  const focusDonut = useMemo(() => {
-    const counts = {};
-    filteredData.forEach(d => { counts[d.focus] = (counts[d.focus] || 0) + 1; });
-    return Object.entries(counts).sort((a,b) => b[1]-a[1]).map(([label, value]) => ({ label, value }));
-  }, [filteredData]);
+function renderStats() {
+  const all = TASKS;
+  document.getElementById("statTotal").textContent = all.length;
+  document.getElementById("statTodo").textContent  = all.filter(t => t.status === "To Do").length;
+  document.getElementById("statProg").textContent  = all.filter(t => t.status === "In Progress").length;
+  document.getElementById("statDone").textContent  = all.filter(t => t.status === "Done").length;
+}
 
-  const card = { background:"#fff", borderRadius:12, padding:16, boxShadow:"0 1px 6px rgba(0,0,0,.08)", marginBottom:12 };
-
-  return (
-    <div style={{ fontFamily:"'Inter',sans-serif", background:"#f8fafc", minHeight:"100vh", padding:"20px 16px" }}>
-      {/* Header */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
-          <div style={{ width:32, height:32, background:"#6366f1", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center" }}>
-            <span style={{ color:"#fff", fontSize:16 }}>⚡</span>
-          </div>
-          <h1 style={{ margin:0, fontSize:20, fontWeight:800, color:"#1f2937" }}>ADL Epic Dashboard</h1>
-        </div>
-        <p style={{ margin:0, color:"#6b7280", fontSize:13 }}>AGILE project · {RAW_DATA.length} Epics · {adls.length} ADLs</p>
+function renderEpics() {
+  const grid = document.getElementById("epicsGrid");
+  grid.innerHTML = EPICS.map(e => `
+    <div class="epic-card" onclick="filterByEpic('${e.key}')">
+      <div class="epic-header">
+        <a class="epic-key" href="${e.url}" target="_blank" onclick="event.stopPropagation()">${e.key}</a>
+        <span class="status-badge ${statusClass(e.status)}">${e.status}</span>
       </div>
-
-      {/* ADL Cards Row */}
-      <div style={{ display:"flex", gap:10, overflowX:"auto", paddingBottom:8, marginBottom:16 }}>
-        {byADL.map(adl => (
-          <div key={adl.name} onClick={() => setSelected(selected === adl.name ? null : adl.name)}
-            style={{
-              ...card, marginBottom:0, cursor:"pointer", minWidth:160, flexShrink:0,
-              border: selected === adl.name ? `2px solid ${COLORS[adl.name]}` : "2px solid transparent",
-              transition:"all .15s"
-            }}>
-            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
-              <Avatar name={adl.name} size={36} />
-              <div>
-                <div style={{ fontWeight:700, fontSize:13, color:"#1f2937", lineHeight:1.2 }}>{adl.name.split(" ")[0]}</div>
-                <div style={{ fontSize:11, color:"#6b7280" }}>{adl.name.split(" ").slice(1).join(" ")}</div>
-              </div>
-            </div>
-            <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
-              <DonutChart data={adl.topFocus.map(([label,value]) => ({label,value}))} size={80} />
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:4, textAlign:"center" }}>
-              {[["🔵",adl.inProgress,"Active"],["✅",adl.done,"Done"],["⬜",adl.todo,"To Do"]].map(([icon,val,lbl]) => (
-                <div key={lbl} style={{ background:"#f8fafc", borderRadius:6, padding:"4px 2px" }}>
-                  <div style={{ fontSize:15 }}>{icon}</div>
-                  <div style={{ fontWeight:700, fontSize:14, color:"#1f2937" }}>{val}</div>
-                  <div style={{ fontSize:9, color:"#9ca3af", textTransform:"uppercase" }}>{lbl}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop:8 }}>
-              {adl.topFocus.slice(0,2).map(([label, cnt], i) => (
-                <div key={i} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
-                  <div style={{ width:8, height:8, borderRadius:2, background:FOCUS_COLORS[focusAreas.indexOf(label) % FOCUS_COLORS.length], flexShrink:0 }} />
-                  <div style={{ fontSize:10, color:"#374151", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", flex:1 }}>{label}</div>
-                  <div style={{ fontSize:10, fontWeight:700, color:"#6b7280" }}>{cnt}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <div style={{ ...card, display:"flex", flexWrap:"wrap", gap:8, alignItems:"center" }}>
-        <input placeholder="🔍 Search epics..." value={search} onChange={e=>setSearch(e.target.value)}
-          style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:"6px 12px", fontSize:13, flex:"1 1 180px", outline:"none" }} />
-        <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}
-          style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:"6px 10px", fontSize:13, outline:"none" }}>
-          {statuses.map(s=><option key={s}>{s}</option>)}
-        </select>
-        <select value={focusFilter} onChange={e=>setFocusFilter(e.target.value)}
-          style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:"6px 10px", fontSize:13, outline:"none", maxWidth:200 }}>
-          <option>All</option>
-          {focusAreas.map(f=><option key={f}>{f}</option>)}
-        </select>
-        {(selected||statusFilter!=="All"||focusFilter!=="All"||search) && (
-          <button onClick={()=>{setSelected(null);setStatusFilter("All");setFocusFilter("All");setSearch("");}}
-            style={{ background:"#f3f4f6", border:"none", borderRadius:8, padding:"6px 12px", fontSize:12, cursor:"pointer", color:"#6b7280", fontWeight:600 }}>
-            ✕ Clear
-          </button>
-        )}
-        <span style={{ fontSize:12, color:"#9ca3af", marginLeft:"auto" }}>{filteredData.length} epics shown</span>
-      </div>
-
-      {/* Focus Area Legend */}
-      <div style={{ ...card, display:"flex", flexWrap:"wrap", gap:8 }}>
-        {focusDonut.map((f, i) => (
-          <div key={f.label} onClick={()=>setFocusFilter(focusFilter===f.label?"All":f.label)} style={{
-            display:"flex", alignItems:"center", gap:5, cursor:"pointer",
-            background: focusFilter===f.label ? "#eff6ff" : "#f9fafb",
-            borderRadius:20, padding:"4px 10px",
-            border: focusFilter===f.label ? "1px solid #3b82f6" : "1px solid #e5e7eb"
-          }}>
-            <div style={{ width:8, height:8, borderRadius:2, background:FOCUS_COLORS[focusAreas.indexOf(f.label) % FOCUS_COLORS.length] }} />
-            <span style={{ fontSize:11, color:"#374151", fontWeight:500 }}>{f.label}</span>
-            <span style={{ fontSize:11, fontWeight:700, color:"#6b7280" }}>{f.value}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Epic List */}
-      <div style={card}>
-        <div style={{ fontSize:13, fontWeight:700, color:"#374151", marginBottom:10, display:"flex", alignItems:"center", gap:6 }}>
-          {selected ? <><Avatar name={selected} size={20} /><span>{selected}</span></> : "All ADLs"}
-          <span style={{ fontWeight:400, color:"#9ca3af" }}>— Epics</span>
-        </div>
-        {filteredData.length === 0 && (
-          <div style={{ textAlign:"center", color:"#9ca3af", padding:24, fontSize:13 }}>No epics match your filters.</div>
-        )}
-        {filteredData.map(d => (
-          <div key={d.key} style={{
-            display:"flex", alignItems:"flex-start", gap:10,
-            padding:"10px 0", borderBottom:"1px solid #f3f4f6"
-          }}>
-            <Avatar name={d.assignee} size={28} />
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap", marginBottom:4 }}>
-                <span style={{ fontSize:11, fontWeight:600, color:"#9ca3af", fontFamily:"monospace" }}>{d.key}</span>
-                <StatusBadge status={d.status} />
-                <span style={{
-                  fontSize:10, background: FOCUS_COLORS[focusAreas.indexOf(d.focus) % FOCUS_COLORS.length] + "22",
-                  color: FOCUS_COLORS[focusAreas.indexOf(d.focus) % FOCUS_COLORS.length],
-                  borderRadius:20, padding:"1px 8px", fontWeight:600
-                }}>{d.focus}</span>
-              </div>
-              <div style={{ fontSize:13, color:"#1f2937", fontWeight:500, lineHeight:1.4 }}>{d.summary}</div>
-              <div style={{ fontSize:11, color:"#9ca3af", marginTop:2 }}>
-                {d.bu.join(", ")} · {d.assignee}
-              </div>
-            </div>
-          </div>
-        ))}
+      <div class="epic-summary">${e.summary}</div>
+      <div class="epic-meta">
+        <span class="focus-badge ${focusClass(e.focusArea)}">${e.focusArea}</span>
+        ${e.labels.filter(l=>!l.startsWith("delivery")).map(l=>`<span class="status-badge todo" style="font-size:10px">${l}</span>`).join("")}
       </div>
     </div>
-  );
+  `).join("");
 }
+
+function renderTabs() {
+  const areas = allFocusAreas();
+  const tabs = document.getElementById("focusTabs");
+  tabs.innerHTML = areas.map(fa => {
+    const count = TASKS.filter(t => fa === "All" || t.focusArea === fa).length;
+    return `<div class="tab ${activeFocus === fa ? "active" : ""}" onclick="setFocus('${fa}')">
+      ${fa} <span class="badge">${count}</span>
+    </div>`;
+  }).join("");
+}
+
+function renderFilters() {
+  const epicSel = document.getElementById("epicFilter");
+  epicSel.innerHTML = `<option value="all">All Epics</option>` +
+    EPICS.map(e => `<option value="${e.key}" ${activeEpic === e.key ? "selected":""}>${e.key} – ${e.summary.replace(/\[.*?\]\s*/g,"").slice(0,40)}</option>`).join("") +
+    `<option value="__none__" ${activeEpic === "__none__" ? "selected":""}>Standalone tasks</option>`;
+
+  const assigneeSel = document.getElementById("assigneeFilter");
+  assigneeSel.innerHTML = `<option value="all">All Assignees</option>` +
+    allAssignees().map(a => `<option value="${a}" ${activeAssignee === a ? "selected":""}>${a}</option>`).join("");
+
+  document.getElementById("statusFilter").value   = activeStatus;
+  document.getElementById("searchInput").value    = searchQuery;
+}
+
+function renderTable() {
+  const tasks  = filteredTasks();
+  const tbody  = document.getElementById("tasksBody");
+  const empty  = document.getElementById("emptyState");
+  const count  = document.getElementById("resultCount");
+
+  count.textContent = `${tasks.length} task${tasks.length !== 1 ? "s" : ""} found`;
+
+  if (tasks.length === 0) {
+    tbody.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+
+  tbody.innerHTML = tasks.map(t => `
+    <tr>
+      <td class="td-key"><a href="${t.url}" target="_blank">${t.key}</a></td>
+      <td class="td-summary">${t.summary}</td>
+      <td><span class="focus-badge ${focusClass(t.focusArea)}">${t.focusArea}</span></td>
+      <td><span class="status-badge ${statusClass(t.status)}">${t.status}</span></td>
+      <td class="td-epic">
+        ${t.epic
+          ? `<a href="https://foshtech.atlassian.net/browse/${t.epic}" target="_blank">${t.epic}</a>
+             <span class="epic-title">${epicSummary(t.epic).replace(/\s*\[.*?\]/g,"")}</span>`
+          : `<span style="color:var(--muted);font-size:11px">Standalone</span>`}
+      </td>
+      <td class="td-assignee"><span class="assignee-cell ${t.assignee === "Unassigned" ? "unassigned" : ""}">${t.assignee}</span></td>
+    </tr>
+  `).join("");
+
+  // update sort arrows
+  document.querySelectorAll("thead th[data-col]").forEach(th => {
+    th.classList.toggle("sorted", th.dataset.col === sortCol);
+    const arrow = th.querySelector(".sort-arrow");
+    if (arrow) arrow.textContent = th.dataset.col === sortCol ? (sortDir === 1 ? "↑" : "↓") : "↕";
+  });
+}
+
+function render() {
+  renderStats();
+  renderEpics();
+  renderTabs();
+  renderFilters();
+  renderTable();
+}
+
+// ── Actions ──────────────────────────────────────────────────────────────────
+
+function setFocus(fa) {
+  activeFocus = fa;
+  render();
+}
+
+function filterByEpic(key) {
+  activeEpic = activeEpic === key ? "all" : key;
+  render();
+}
+
+function sortBy(col) {
+  if (sortCol === col) { sortDir *= -1; }
+  else { sortCol = col; sortDir = 1; }
+  renderTable();
+  document.querySelectorAll("thead th[data-col]").forEach(th => {
+    th.classList.toggle("sorted", th.dataset.col === sortCol);
+    const arrow = th.querySelector(".sort-arrow");
+    if (arrow) arrow.textContent = th.dataset.col === sortCol ? (sortDir === 1 ? "↑" : "↓") : "↕";
+  });
+}
+
+function clearFilters() {
+  activeFocus    = "All";
+  activeStatus   = "all";
+  activeEpic     = "all";
+  activeAssignee = "all";
+  searchQuery    = "";
+  render();
+}
+
+// ── Event wiring ─────────────────────────────────────────────────────────────
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("statusFilter").addEventListener("change",   e => { activeStatus   = e.target.value; renderTable(); });
+  document.getElementById("epicFilter").addEventListener("change",     e => { activeEpic     = e.target.value; renderTable(); });
+  document.getElementById("assigneeFilter").addEventListener("change", e => { activeAssignee = e.target.value; renderTable(); });
+  document.getElementById("searchInput").addEventListener("input",     e => { searchQuery    = e.target.value.toLowerCase().trim(); renderTable(); });
+
+  const now = new Date();
+  document.getElementById("updatedAt").textContent =
+    "Last loaded: " + now.toLocaleDateString("en-GB", {day:"2-digit",month:"short",year:"numeric"}) +
+    " " + now.toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"});
+
+  render();
+});
+</script>
+</body>
+</html>
