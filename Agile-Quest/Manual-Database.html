@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual: Base de Datos con IA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+  :root {
+    --bg: #0a0a0f; --surface: #13131a; --border: #22222e;
+    --accent: #7c6af7; --accent2: #f7c26a; --accent3: #6af7c2;
+    --text: #e8e8f0; --muted: #6b6b80;
+    --success: #6af7a0; --warning: #f7a06a; --error: #f76a6a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; min-height:100vh; }
+  .container { max-width:780px; margin:0 auto; padding:48px 24px 80px; }
+  .header { text-align:center; margin-bottom:48px; }
+  .badge { display:inline-block; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#000; font-size:11px; font-weight:700; letter-spacing:2px; padding:4px 14px; border-radius:99px; margin-bottom:20px; text-transform:uppercase; }
+  h1 { font-size:clamp(28px,5vw,46px); font-weight:800; line-height:1.1; background:linear-gradient(135deg,#fff 30%,var(--accent) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:12px; }
+  .subtitle { color:var(--muted); font-size:14px; font-family:'DM Mono',monospace; }
+  .progress-bar { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:40px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+  .prog-step { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; cursor:pointer; padding:4px 8px; border-radius:6px; transition:all 0.2s; }
+  .prog-step:hover { color:var(--text); background:var(--border); }
+  .prog-step.done { color:var(--success); }
+  .prog-step.active { color:var(--accent2); }
+  .prog-dot { width:7px; height:7px; border-radius:50%; background:var(--border); flex-shrink:0; transition:background 0.3s; }
+  .prog-step.done .prog-dot { background:var(--success); }
+  .prog-step.active .prog-dot { background:var(--accent2); box-shadow:0 0 6px var(--accent2); }
+  .step { background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden; transition:border-color 0.3s; }
+  .step.active { border-color:var(--accent); }
+  .step.done { border-color:var(--success); opacity:0.8; }
+  .step-header { display:flex; align-items:center; gap:14px; padding:18px 20px; cursor:pointer; user-select:none; }
+  .step-num { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; background:var(--border); color:var(--muted); transition:all 0.3s; }
+  .step.active .step-num { background:var(--accent); color:#fff; }
+  .step.done .step-num { background:var(--success); color:#000; }
+  .step-title { flex:1; font-size:15px; font-weight:700; }
+  .step-subtitle { font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; margin-top:2px; }
+  .step-arrow { color:var(--muted); font-size:16px; transition:transform 0.3s; }
+  .step.open .step-arrow { transform:rotate(180deg); }
+  .step-body { display:none; padding:0 20px 20px; border-top:1px solid var(--border); }
+  .step.open .step-body { display:block; }
+  .instruction { padding:14px 0; border-bottom:1px solid var(--border); font-size:13px; line-height:1.75; color:#c8c8d8; }
+  .instruction:last-of-type { border-bottom:none; }
+  .instruction strong { color:var(--text); }
+  code { font-family:'DM Mono',monospace; background:#1a1a28; border:1px solid var(--border); border-radius:5px; padding:2px 7px; font-size:12px; color:var(--accent2); }
+  .code-block { background:#0d0d18; border:1px solid var(--border); border-radius:10px; padding:14px 14px 14px 16px; margin:10px 0; font-family:'DM Mono',monospace; font-size:12px; line-height:1.9; color:var(--accent3); position:relative; overflow-x:auto; }
+  .code-block .cm { color:var(--muted); }
+  .copy-btn { position:absolute; top:8px; right:8px; background:var(--border); border:none; color:var(--muted); font-family:'DM Mono',monospace; font-size:10px; padding:4px 9px; border-radius:5px; cursor:pointer; transition:all 0.2s; }
+  .copy-btn:hover { background:var(--accent); color:#fff; }
+  .copy-btn.copied { background:var(--success); color:#000; }
+  .tip { background:linear-gradient(135deg,#1a1508,#13130a); border:1px solid #3a2e10; border-left:3px solid var(--accent2); border-radius:9px; padding:12px 14px; margin:10px 0; font-size:12px; color:#d4c08a; line-height:1.65; }
+  .tip::before { content:'💡 TIP — '; font-weight:700; color:var(--accent2); }
+  .error-tip { background:linear-gradient(135deg,#1a0808,#130a0a); border:1px solid #3a1010; border-left:3px solid var(--error); border-radius:9px; padding:12px 14px; margin:10px 0; font-size:12px; color:#d48a8a; line-height:1.65; }
+  .error-tip::before { content:'⚠️ ERROR COMÚN — '; font-weight:700; color:var(--error); }
+  .ok-tip { background:linear-gradient(135deg,#081a0e,#0a130d); border:1px solid #103a1c; border-left:3px solid var(--success); border-radius:9px; padding:12px 14px; margin:10px 0; font-size:12px; color:#8ad4a8; line-height:1.65; }
+  .ok-tip::before { content:'✅ SEÑAL DE ÉXITO — '; font-weight:700; color:var(--success); }
+  .check-btn { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:18px; background:linear-gradient(135deg,var(--accent),#9b8cf9); border:none; color:#fff; font-family:'Syne',sans-serif; font-size:13px; font-weight:700; padding:11px 24px; border-radius:9px; cursor:pointer; transition:all 0.2s; width:100%; }
+  .check-btn:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(124,106,247,0.3); }
+  .check-btn.done-btn { background:linear-gradient(135deg,var(--success),#4ac880); color:#000; }
+  .final-card { background:linear-gradient(135deg,#13131a,#0d0d18); border:1px solid var(--accent); border-radius:14px; padding:28px; text-align:center; margin-top:20px; display:none; }
+  .final-card.visible { display:block; animation:fadeUp 0.5s ease; }
+  .trophy { font-size:44px; margin-bottom:14px; }
+  .final-card h2 { font-size:22px; font-weight:800; background:linear-gradient(135deg,var(--accent2),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:10px; }
+  .final-card p { color:var(--muted); font-size:13px; line-height:1.7; }
+  .checklist { display:flex; flex-direction:column; gap:7px; margin-top:18px; text-align:left; }
+  .check-item { display:flex; align-items:center; gap:9px; font-size:12px; color:var(--success); font-family:'DM Mono',monospace; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">Manual Completo</div>
+    <h1>Base de Datos con IA<br>desde cero</h1>
+    <p class="subtitle">VS Code → GitHub → equipo privado · Mac edition</p>
+  </div>
+  <div class="progress-bar" id="progressBar"></div>
+  <div id="stepsContainer"></div>
+  <div class="final-card" id="finalCard">
+    <div class="trophy">🏆</div>
+    <h2>¡Proyecto completado!</h2>
+    <p>Seguiste todos los pasos. Tu base de datos con IA está creada, subida a GitHub y compartida con tu equipo.</p>
+    <div class="checklist">
+      <div class="check-item">✅ Homebrew instalado</div>
+      <div class="check-item">✅ Python instalado y verificado</div>
+      <div class="check-item">✅ VS Code con extensiones</div>
+      <div class="check-item">✅ Entorno virtual activo</div>
+      <div class="check-item">✅ Librerías instaladas</div>
+      <div class="check-item">✅ Base de datos SQLite creada</div>
+      <div class="check-item">✅ Repositorio privado en GitHub</div>
+      <div class="check-item">✅ Equipo agregado como colaboradores</div>
+    </div>
+  </div>
+</div>
+<script>
+const steps = [
+  {
+    title:"Requisitos previos",
+    subtitle:"Lo que necesitás antes de empezar",
+    content:`
+      <div class="instruction">Antes de empezar necesitás tener:<br><br>
+        <strong>VS Code</strong> — descargalo en <code>code.visualstudio.com</code><br>
+        <strong>Cuenta de GitHub</strong> — creala en <code>github.com</code><br><br>
+        Para linkear VS Code con GitHub: <strong>Cmd + Shift + P</strong> → escribí <code>GitHub: Sign in</code> → se abre el navegador → iniciás sesión.
+      </div>
+      <div class="tip">Si ya tenés HTMLs subidos a GitHub desde VS Code, ya están linkeados. Podés saltear ese paso.</div>
+    `
+  },
+  {
+    title:"Instalar Homebrew",
+    subtitle:"El gestor de paquetes de Mac",
+    content:`
+      <div class="instruction">Homebrew es una "tienda por terminal" para instalar herramientas de desarrollo. Es seguro y usado por millones de desarrolladores. Podés verificar que el comando es oficial entrando a <code>brew.sh</code>.<br><br>
+      Abrí la app <strong>Terminal</strong> de tu Mac y pegá este comando completo:</div>
+      <div class="code-block" id="cb1">
+        <button class="copy-btn" onclick="cp('cb1','/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;')">copiar</button>
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      </div>
+      <div class="instruction">Al terminar, la terminal muestra <strong>Next steps</strong> con 3 comandos para agregar Homebrew al PATH. Ejecutalos <strong>uno por uno</strong> (reemplazá TU-USUARIO con tu nombre de usuario Mac):</div>
+      <div class="code-block" id="cb2">
+        <button class="copy-btn" onclick="cp('cb2','echo >> /Users/TU-USUARIO/.zprofile')">copiar</button>
+        <span class="cm"># Comando 1</span><br>
+        echo >> /Users/TU-USUARIO/.zprofile
+      </div>
+      <div class="code-block" id="cb3">
+        <button class="copy-btn" onclick="cp('cb3',&quot;echo 'eval &quot;$(/opt/homebrew/bin/brew shellenv zsh)&quot;' >> /Users/TU-USUARIO/.zprofile&quot;)">copiar</button>
+        <span class="cm"># Comando 2</span><br>
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv zsh)"' >> /Users/TU-USUARIO/.zprofile
+      </div>
+      <div class="code-block" id="cb4">
+        <button class="copy-btn" onclick="cp('cb4','eval &quot;$(/opt/homebrew/bin/brew shellenv zsh)&quot;')">copiar</button>
+        <span class="cm"># Comando 3</span><br>
+        eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+      </div>
+      <div class="error-tip">Si al pegar el Comando 3 la terminal muestra <code>dquote&gt;</code>, le faltó la comilla final. Apretá <strong>Ctrl + C</strong> para cancelar y volvé a copiar el comando completo.</div>
+      <div class="instruction">Verificá que quedó bien:</div>
+      <div class="code-block" id="cb5">
+        <button class="copy-btn" onclick="cp('cb5','brew --version')">copiar</button>
+        brew --version
+      </div>
+      <div class="ok-tip">Si ves algo como <code>Homebrew 5.x.x</code>, está perfecto.</div>
+    `
+  },
+  {
+    title:"Instalar Python",
+    subtitle:"El lenguaje que usaremos",
+    content:`
+      <div class="instruction">Con Homebrew listo, Python se instala con un solo comando:</div>
+      <div class="code-block" id="cb6">
+        <button class="copy-btn" onclick="cp('cb6','brew install python')">copiar</button>
+        brew install python
+      </div>
+      <div class="instruction">Puede tardar un par de minutos. Al terminar, verificá:</div>
+      <div class="code-block" id="cb7">
+        <button class="copy-btn" onclick="cp('cb7','python3 --version')">copiar</button>
+        python3 --version
+      </div>
+      <div class="ok-tip">Tiene que mostrar <code>Python 3.x.x</code>. ¡Listo!</div>
+      <div class="tip">En Mac siempre usás <code>python3</code> en lugar de <code>python</code>, y <code>pip3</code> en lugar de <code>pip</code>.</div>
+    `
+  },
+  {
+    title:"Extensiones en VS Code",
+    subtitle:"Herramientas visuales indispensables",
+    content:`
+      <div class="instruction">
+        Abrí VS Code → ícono de piezas 🧩 en el panel izquierdo → buscá e instalá:<br><br>
+        <strong>Python</strong> (de Microsoft) — para correr código Python<br><br>
+        <strong>SQLite Viewer</strong> (de Florian Klampfer) — para ver tu base de datos visualmente
+      </div>
+      <div class="tip">Si VS Code muestra un popup preguntando si querés crear un entorno virtual, hacé clic en <strong>"Don't show again"</strong>. Lo vamos a crear manualmente en el siguiente paso.</div>
+    `
+  },
+  {
+    title:"Crear el proyecto",
+    subtitle:"Carpeta y entorno virtual",
+    content:`
+      <div class="instruction">
+        <strong>1.</strong> En VS Code → <strong>File → Open Folder</strong> → creá una carpeta nueva con el nombre de tu proyecto → seleccionala → Open.<br><br>
+        <strong>2.</strong> Abrí la terminal de VS Code con <code>Ctrl + &#96;</code><br><br>
+        <strong>3.</strong> Creá el entorno virtual:
+      </div>
+      <div class="code-block" id="cb8">
+        <button class="copy-btn" onclick="cp('cb8','python3 -m venv venv --without-pip')">copiar</button>
+        python3 -m venv venv --without-pip
+      </div>
+      <div class="error-tip">Si aparece un error con <code>ensurepip</code>, es porque tu versión de Python es muy nueva. El flag <code>--without-pip</code> al final del comando lo soluciona.</div>
+      <div class="instruction"><strong>4.</strong> Activá el entorno virtual:</div>
+      <div class="code-block" id="cb9">
+        <button class="copy-btn" onclick="cp('cb9','source venv/bin/activate')">copiar</button>
+        source venv/bin/activate
+      </div>
+      <div class="ok-tip">Cuando ves <code>(venv)</code> al inicio de la línea en la terminal, el entorno está activo. Todo lo que instalés quedará dentro del proyecto.</div>
+    `
+  },
+  {
+    title:"Instalar librerías",
+    subtitle:"Anthropic IA + variables de entorno",
+    content:`
+      <div class="instruction">Con el entorno virtual activo <code>(venv)</code>, instalá las librerías:</div>
+      <div class="code-block" id="cb10">
+        <button class="copy-btn" onclick="cp('cb10','pip3 install anthropic python-dotenv')">copiar</button>
+        pip3 install anthropic python-dotenv
+      </div>
+      <div class="error-tip">Si la terminal dice <code>command not found: pip</code>, usá <code>pip3</code> en su lugar. En Mac siempre es <code>pip3</code>.</div>
+      <div class="ok-tip">Si ves que se descargan paquetes sin errores en rojo, quedó todo bien.</div>
+    `
+  },
+  {
+    title:"Crear los archivos",
+    subtitle:"setup_db.py y .gitignore",
+    content:`
+      <div class="instruction">La forma más segura de crear archivos es desde la terminal, así te asegurás de que queden en la carpeta correcta.<br><br>
+      Primero verificá en qué carpeta estás:</div>
+      <div class="code-block" id="cb11">
+        <button class="copy-btn" onclick="cp('cb11','pwd')">copiar</button>
+        pwd
+      </div>
+      <div class="tip">La ruta que muestra <code>pwd</code> tiene que terminar con el nombre de tu proyecto. Si no, navegá con <code>cd nombre-de-tu-carpeta</code>.</div>
+      <div class="instruction"><strong>Crear setup_db.py</strong> — copiá todo este bloque de una sola vez:</div>
+      <div class="code-block" id="cb12">
+        <button class="copy-btn" onclick="cp('cb12')">copiar</button>
+        cat > setup_db.py &lt;&lt; 'EOF'<br>
+        import sqlite3<br>
+        import os<br><br>
+        os.makedirs("database", exist_ok=True)<br><br>
+        conn = sqlite3.connect("database/datos.db")<br>
+        cursor = conn.cursor()<br><br>
+        cursor.execute("""<br>
+        &nbsp;&nbsp;CREATE TABLE IF NOT EXISTS registros (<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;id INTEGER PRIMARY KEY AUTOINCREMENT,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;titulo TEXT NOT NULL,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;contenido TEXT,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP<br>
+        &nbsp;&nbsp;)<br>
+        """)<br><br>
+        conn.commit()<br>
+        conn.close()<br>
+        print("Base de datos creada correctamente")<br>
+        EOF
+      </div>
+      <div class="instruction"><strong>Crear .gitignore</strong> — protege archivos sensibles:</div>
+      <div class="code-block" id="cb13">
+        <button class="copy-btn" onclick="cp('cb13')">copiar</button>
+        cat > .gitignore &lt;&lt; 'EOF'<br>
+        .env<br>
+        venv/<br>
+        __pycache__/<br>
+        database/*.db<br>
+        *.pyc<br>
+        EOF
+      </div>
+      <div class="tip">Nunca subas el archivo <code>.env</code> ni la base de datos a GitHub. El <code>.gitignore</code> los excluye automáticamente.</div>
+      <div class="instruction"><strong>Ejecutá el script para crear la base de datos:</strong></div>
+      <div class="code-block" id="cb14">
+        <button class="copy-btn" onclick="cp('cb14','python3 setup_db.py')">copiar</button>
+        python3 setup_db.py
+      </div>
+      <div class="ok-tip">Si la terminal muestra "Base de datos creada correctamente", ¡todo salió perfecto!</div>
+    `
+  },
+  {
+    title:"Subir a GitHub",
+    subtitle:"Git init → commit → push",
+    content:`
+      <div class="instruction"><strong>1.</strong> Inicializá git:</div>
+      <div class="code-block" id="cb15">
+        <button class="copy-btn" onclick="cp('cb15','git init')">copiar</button>
+        git init
+      </div>
+      <div class="instruction"><strong>2.</strong> Agregá los archivos:</div>
+      <div class="code-block" id="cb16">
+        <button class="copy-btn" onclick="cp('cb16','git add .')">copiar</button>
+        git add .
+      </div>
+      <div class="instruction"><strong>3.</strong> Primer commit:</div>
+      <div class="code-block" id="cb17">
+        <button class="copy-btn" onclick="cp('cb17','git commit -m \"Primer commit: proyecto con base de datos\"')">copiar</button>
+        git commit -m "Primer commit: proyecto con base de datos"
+      </div>
+      <div class="instruction">
+        <strong>4.</strong> Creá el repositorio en GitHub:<br><br>
+        Andá a <code>github.com</code> → botón verde <strong>"New"</strong> → nombre del repo → seleccioná <strong>Private 🔒</strong> → <strong>NO</strong> tildés opciones extra → <strong>Create repository</strong>.<br><br>
+        GitHub te muestra comandos. Copiá los de la sección <strong>"…or push an existing repository"</strong>:
+      </div>
+      <div class="code-block" id="cb18">
+        <button class="copy-btn" onclick="cp('cb18','git remote add origin https://github.com/TU-USUARIO/TU-REPO.git\ngit branch -M main\ngit push -u origin main')">copiar</button>
+        git remote add origin https://github.com/TU-USUARIO/TU-REPO.git<br>
+        git branch -M main<br>
+        git push -u origin main
+      </div>
+      <div class="tip">Usá los comandos exactos que te da GitHub, ya tienen tu usuario y nombre de repo correctos.</div>
+    `
+  },
+  {
+    title:"Compartir con tu equipo",
+    subtitle:"Agregar colaboradores al repo privado",
+    content:`
+      <div class="instruction">
+        Tu repo ya está privado en GitHub. Para que tu equipo pueda acceder:<br><br>
+        1. Andá a tu repositorio en <code>github.com</code><br>
+        2. Clic en <strong>Settings</strong> (arriba a la derecha)<br>
+        3. En el menú izquierdo → <strong>Collaborators</strong><br>
+        4. GitHub puede pedirte tu contraseña<br>
+        5. Clic en <strong>"Add people"</strong><br>
+        6. Escribí el usuario de GitHub de cada integrante<br>
+        7. Clic en <strong>Add</strong><br><br>
+        Cada integrante recibe un <strong>email de invitación</strong>. Al aceptar, pueden clonar el proyecto:
+      </div>
+      <div class="code-block" id="cb19">
+        <button class="copy-btn" onclick="cp('cb19','git clone https://github.com/TU-USUARIO/TU-REPO.git')">copiar</button>
+        git clone https://github.com/TU-USUARIO/TU-REPO.git
+      </div>
+      <div class="tip">Si creaste el repo público por error: Settings → Danger Zone → Change visibility → Private.</div>
+      <div class="ok-tip">¡Listo! Tu equipo ya puede ver y trabajar en el proyecto.</div>
+    `
+  }
+];
+
+let states = new Array(steps.length).fill('pending');
+
+function renderProgress() {
+  document.getElementById('progressBar').innerHTML = steps.map((s,i) => `
+    <div class="prog-step ${states[i]}" onclick="toggle(${i})">
+      <div class="prog-dot"></div>${i+1}. ${s.title.split(' ')[0]}
+    </div>`).join('');
+}
+
+function renderSteps() {
+  document.getElementById('stepsContainer').innerHTML = steps.map((s,i) => `
+    <div class="step ${states[i]}" id="step-${i}">
+      <div class="step-header" onclick="toggle(${i})">
+        <div class="step-num">${states[i]==='done'?'✓':i+1}</div>
+        <div style="flex:1">
+          <div class="step-title">${s.title}</div>
+          <div class="step-subtitle">${s.subtitle}</div>
+        </div>
+        <div class="step-arrow">▾</div>
+      </div>
+      <div class="step-body">
+        ${s.content}
+        <button class="check-btn ${states[i]==='done'?'done-btn':''}" onclick="markDone(${i})">
+          ${states[i]==='done'?'✓ Completado':'✓ Marcar como completado'}
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function toggle(i) {
+  const el = document.getElementById('step-'+i);
+  el.classList.toggle('open');
+  if(states[i]==='pending'){states[i]='active';renderProgress();}
+}
+
+function markDone(i) {
+  states[i]='done';
+  renderSteps(); renderProgress();
+  if(i+1<steps.length){
+    setTimeout(()=>{
+      toggle(i+1);
+      document.getElementById('step-'+(i+1)).scrollIntoView({behavior:'smooth',block:'start'});
+    },300);
+  }
+  if(states.every(s=>s==='done')){
+    const fc=document.getElementById('finalCard');
+    fc.classList.add('visible');
+    fc.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+const copyTexts = {
+  cb12: `cat > setup_db.py << 'EOF'
+import sqlite3
+import os
+
+os.makedirs("database", exist_ok=True)
+
+conn = sqlite3.connect("database/datos.db")
+cursor = conn.cursor()
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS registros (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo TEXT NOT NULL,
+        contenido TEXT,
+        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+""")
+
+conn.commit()
+conn.close()
+print("Base de datos creada correctamente")
+EOF`,
+  cb13: `cat > .gitignore << 'EOF'
+.env
+venv/
+__pycache__/
+database/*.db
+*.pyc
+EOF`
+};
+
+function cp(id, text) {
+  const btn = document.querySelector('#'+id+' .copy-btn');
+  const raw = text !== undefined ? text : (copyTexts[id] || '');
+  const clean = raw.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
+  navigator.clipboard.writeText(clean).then(()=>{
+    btn.textContent='✓ copiado'; btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='copiar';btn.classList.remove('copied');},2000);
+  });
+}
+
+renderProgress(); renderSteps(); toggle(0);
+</script>
+</body>
+</html>
