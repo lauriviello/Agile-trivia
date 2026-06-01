@@ -41,7 +41,6 @@
       line-height: 1.5;
     }
 
-    /* ── Header ── */
     .header {
       background: #0d1117;
       border-bottom: 1px solid var(--border);
@@ -54,182 +53,75 @@
     .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
     .header .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-    /* ── Layout ── */
     .main { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
 
-    /* ── Section title ── */
     .section-title {
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--muted);
-      margin-bottom: 14px;
+      font-size: 13px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.6px; color: var(--muted); margin-bottom: 14px;
     }
 
-    /* ── Chart card ── */
     .chart-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 28px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin-bottom: 28px;
     }
     .chart-wrapper { position: relative; height: 300px; }
+    .chart-hint { font-size: 11px; color: var(--muted); margin-top: 10px; text-align: center; }
 
-    .chart-hint {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    /* ── Quarter tabs ── */
-    .q-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
+    .q-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
     .q-tab {
-      padding: 6px 16px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.15s;
+      padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--muted); cursor: pointer;
+      font-size: 13px; font-weight: 500; transition: all 0.15s;
     }
     .q-tab:hover { border-color: var(--primary); color: var(--text); }
-    .q-tab.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #0d1117;
-      font-weight: 700;
-    }
+    .q-tab.active { background: var(--primary); border-color: var(--primary); color: #0d1117; font-weight: 700; }
 
-    /* ── Focus area groups ── */
     .fa-group {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 16px;
-      overflow: hidden;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
     }
     .fa-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 18px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.12s;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 18px; cursor: pointer; user-select: none; transition: background 0.12s;
     }
     .fa-header:hover { background: var(--surface-2); }
-    .fa-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    .fa-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    .fa-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+    .fa-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .fa-count {
-      font-size: 12px;
-      color: var(--muted);
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1px 8px;
+      font-size: 12px; color: var(--muted); background: var(--surface-2);
+      border: 1px solid var(--border); border-radius: 12px; padding: 1px 8px;
     }
-    .fa-chevron {
-      color: var(--muted);
-      font-size: 12px;
-      transition: transform 0.2s;
-    }
+    .fa-chevron { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
     .fa-group.open .fa-chevron { transform: rotate(180deg); }
-
     .fa-body { display: none; border-top: 1px solid var(--border); }
     .fa-group.open .fa-body { display: block; }
 
-    /* ── Task table ── */
     table { width: 100%; border-collapse: collapse; }
     th {
-      text-align: left;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--muted);
-      padding: 8px 18px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface-2);
+      text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--muted); padding: 8px 18px;
+      border-bottom: 1px solid var(--border); background: var(--surface-2);
     }
-    td {
-      padding: 9px 18px;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-      vertical-align: middle;
-    }
+    td { padding: 9px 18px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface-2); }
 
-    /* Task link */
-    .task-key {
-      font-family: monospace;
-      font-size: 12px;
-      color: var(--primary);
-      text-decoration: none;
-      white-space: nowrap;
-    }
+    .task-key { font-family: monospace; font-size: 12px; color: var(--primary); text-decoration: none; white-space: nowrap; }
     .task-key:hover { text-decoration: underline; }
-    .task-summary { color: var(--text); }
 
-    /* Status badges */
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap; }
     .badge-todo       { background: var(--todo-bg);   color: var(--todo-text); }
     .badge-inprogress { background: var(--inprog-bg);  color: var(--inprog-text); }
     .badge-done       { background: var(--done-bg);    color: var(--done-text); }
     .badge-review     { background: var(--review-bg);  color: var(--review-text); }
     .badge-cancelled  { background: var(--cancel-bg);  color: var(--cancel-text); }
 
-    /* ── No-data message ── */
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      padding: 32px;
-      font-size: 13px;
-    }
+    .empty { text-align: center; color: var(--muted); padding: 40px; font-size: 13px; }
 
-    /* ── Summary row ── */
-    .summary-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
+    .summary-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
     .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 20px;
-      flex: 1;
-      min-width: 110px;
-      text-align: center;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 20px; flex: 1; min-width: 110px; text-align: center;
     }
     .stat-num { font-size: 26px; font-weight: 700; color: var(--text); }
     .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -246,62 +138,74 @@
 </header>
 
 <main class="main">
-
-  <!-- Summary stats -->
   <div class="summary-row" id="summaryRow"></div>
-
-  <!-- Chart -->
   <div class="chart-card">
     <div class="section-title">Tasks por Focus Area y Quarter</div>
-    <div class="chart-wrapper">
-      <canvas id="faChart"></canvas>
-    </div>
+    <div class="chart-wrapper"><canvas id="faChart"></canvas></div>
     <p class="chart-hint">Clic en una barra o en la leyenda para filtrar las tasks</p>
   </div>
-
-  <!-- Quarter filter tabs -->
   <div class="q-tabs" id="qTabs"></div>
-
-  <!-- Task groups -->
   <div id="taskGroups"></div>
-
 </main>
 
 <script>
-// ── Data ────────────────────────────────────────────────────────────────────
 const BASE = "https://foshtech.atlassian.net/browse/";
 
 const TASKS = [
   // Agile Coach
-  { key:"AGILE-57",  summary:"[Design&Websites] - meeting notes and next actions",           status:"Done",        focusArea:"Agile Coach",            quarter:"Q1" },
-  { key:"AGILE-101", summary:"Promote Bookmark Guide in UI/UX Design",                       status:"Done",        focusArea:"Agile Coach",            quarter:"Q1" },
-  { key:"AGILE-106", summary:"Promote Bookmark Guide in BU WEBSITES",                        status:"Done",        focusArea:"Agile Coach",            quarter:"Q1" },
-  { key:"AGILE-136", summary:"Promote Bookmark Guide in BU PAM",                             status:"Done",        focusArea:"Agile Coach",            quarter:"Q1" },
-  { key:"AGILE-59",  summary:"[PAM] - Creation a Miro board for colaboration",               status:"Done",        focusArea:"Agile Coach",            quarter:"Q2" },
-  { key:"AGILE-226", summary:"[PAM] Nexus Review + VoC Follow Up [Q3 2026]",                 status:"To Do",       focusArea:"Agile Coach",            quarter:"Q2" },
+  { key:"AGILE-57",  summary:"[Design&Websites] - meeting notes and next actions",                    status:"Done",        focusArea:"Agile Coach",            quarter:"Q1" },
+  { key:"AGILE-101", summary:"Promote Bookmark Guide in UI/UX Design",                               status:"Done",        focusArea:"Agile Coach",            quarter:"Q1" },
+  { key:"AGILE-106", summary:"Promote Bookmark Guide in BU WEBSITES",                                status:"Done",        focusArea:"Agile Coach",            quarter:"Q1" },
+  { key:"AGILE-136", summary:"Promote Bookmark Guide in BU PAM",                                     status:"Done",        focusArea:"Agile Coach",            quarter:"Q1" },
+  { key:"AGILE-59",  summary:"[PAM] - Creation a Miro board for colaboration",                       status:"Done",        focusArea:"Agile Coach",            quarter:"Q2" },
+  { key:"AGILE-226", summary:"[PAM] Nexus Review + VoC Follow Up [Q3 2026]",                         status:"To Do",       focusArea:"Agile Coach",            quarter:"Q2" },
   // Coaching & Development
-  { key:"AGILE-244", summary:"[Design] - 1:1 with Victor",                                   status:"Done",        focusArea:"Coaching & Development", quarter:"Q2" },
-  { key:"AGILE-245", summary:"[Design] - 1:1 with Mai",                                      status:"To Do",       focusArea:"Coaching & Development", quarter:"Q2" },
-  { key:"AGILE-246", summary:"[Design] - 1:1 with Sam",                                      status:"To Do",       focusArea:"Coaching & Development", quarter:"Q2" },
-  { key:"AGILE-247", summary:"[Design] - 1:1 with Nek",                                      status:"To Do",       focusArea:"Coaching & Development", quarter:"Q2" },
-  { key:"AGILE-248", summary:"[Design] - 1:1 with Lily",                                     status:"Done",        focusArea:"Coaching & Development", quarter:"Q2" },
+  { key:"AGILE-244", summary:"[Design] - 1:1 with Victor",                                           status:"Done",        focusArea:"Coaching & Development", quarter:"Q2" },
+  { key:"AGILE-245", summary:"[Design] - 1:1 with Mai",                                              status:"To Do",       focusArea:"Coaching & Development", quarter:"Q2" },
+  { key:"AGILE-246", summary:"[Design] - 1:1 with Sam",                                              status:"To Do",       focusArea:"Coaching & Development", quarter:"Q2" },
+  { key:"AGILE-247", summary:"[Design] - 1:1 with Nek",                                              status:"To Do",       focusArea:"Coaching & Development", quarter:"Q2" },
+  { key:"AGILE-248", summary:"[Design] - 1:1 with Lily",                                             status:"Done",        focusArea:"Coaching & Development", quarter:"Q2" },
   // Cross-BU
-  { key:"AGILE-48",  summary:"[Websites] - Standarization of Sprint",                        status:"Done",        focusArea:"Cross-BU",               quarter:"Q1" },
-  { key:"AGILE-49",  summary:"[PAM] - Standarization of Sprint",                             status:"In Progress", focusArea:"Cross-BU",               quarter:"Q1" },
-  { key:"AGILE-132", summary:"[Digital] Test plan - add fields",                             status:"Done",        focusArea:"Cross-BU",               quarter:"Q2" },
-  { key:"AGILE-133", summary:"[Digital] - REL tickets automation",                           status:"Done",        focusArea:"Cross-BU",               quarter:"Q2" },
-  { key:"AGILE-325", summary:"[Digital] - Add Epic Link into Test plan",                     status:"Done",        focusArea:"Cross-BU",               quarter:"Q2" },
+  { key:"AGILE-48",  summary:"[Websites] - Standarization of Sprint",                                status:"Done",        focusArea:"Cross-BU",               quarter:"Q1" },
+  { key:"AGILE-49",  summary:"[PAM] - Standarization of Sprint",                                     status:"In Progress", focusArea:"Cross-BU",               quarter:"Q1" },
+  { key:"AGILE-132", summary:"[Digital] Test plan - add fields",                                     status:"Done",        focusArea:"Cross-BU",               quarter:"Q2" },
+  { key:"AGILE-133", summary:"[Digital] - REL tickets automation",                                   status:"Done",        focusArea:"Cross-BU",               quarter:"Q2" },
+  { key:"AGILE-325", summary:"[Digital] - Add Epic Link into Test plan",                             status:"Done",        focusArea:"Cross-BU",               quarter:"Q2" },
   // Improvement Plans
-  { key:"AGILE-69",  summary:"Lau's Epic and tasks",                                         status:"Done",        focusArea:"Improvement Plans",      quarter:"Q2" },
-  { key:"AGILE-129", summary:"[PAM] - Sentinels doc creation",                               status:"In Progress", focusArea:"Improvement Plans",      quarter:"Q2" },
-  { key:"AGILE-134", summary:"[Digital] - Clean old tickets / Test plans",                   status:"Done",        focusArea:"Improvement Plans",      quarter:"Q2" },
-  { key:"AGILE-135", summary:"[Design&Websites] - Implement Claude-Code into ShadCn",        status:"In Progress", focusArea:"Improvement Plans",      quarter:"Q2" },
+  { key:"AGILE-69",  summary:"Lau's Epic and tasks",                                                 status:"Done",        focusArea:"Improvement Plans",      quarter:"Q2" },
+  { key:"AGILE-129", summary:"[PAM] - Sentinels doc creation",                                       status:"In Progress", focusArea:"Improvement Plans",      quarter:"Q2" },
+  { key:"AGILE-134", summary:"[Digital] - Clean old tickets / Test plans",                           status:"Done",        focusArea:"Improvement Plans",      quarter:"Q2" },
+  { key:"AGILE-135", summary:"[Design&Websites] - Implement Cloude-Code into ShadCn initiative",     status:"In Progress", focusArea:"Improvement Plans",      quarter:"Q2" },
   // Innovation Ally
-  { key:"AGILE-254", summary:"[PAM] Take over PAM BU from Maxi - First Steps [Q1 2026]",    status:"Done",        focusArea:"Innovation Ally",        quarter:"Q1" },
-  { key:"AGILE-255", summary:"[PAM] Take over PAM BU from Maxi - Wrap Up [Q2 2026]",        status:"Done",        focusArea:"Innovation Ally",        quarter:"Q1" },
-  { key:"AGILE-241", summary:"[PAM] - Support on Cloud access Jira & Confluence",            status:"Done",        focusArea:"Innovation Ally",        quarter:null  },
+  { key:"AGILE-254", summary:"[PAM] Take over PAM BU from Maxi - First Steps [Q1 2026]",            status:"Done",        focusArea:"Innovation Ally",        quarter:"Q1" },
+  { key:"AGILE-255", summary:"[PAM] Take over PAM BU from Maxi - Wrap Up [Q2 2026]",                status:"Done",        focusArea:"Innovation Ally",        quarter:"Q1" },
+  { key:"AGILE-241", summary:"[PAM] - Support on Cloud access Jira & Confluence",                    status:"Done",        focusArea:"Innovation Ally",        quarter:"Q2" },
   // Upskilling & Workshops
-  { key:"AGILE-324", summary:"[All] AI Hackathon [H2 2026] - Bi weekly meetings",            status:"To Do",       focusArea:"Upskilling & Workshops", quarter:"Q2" },
+  { key:"AGILE-324", summary:"[All] AI Hackathon [H2 2026] - Bi weekly meetings",                    status:"To Do",       focusArea:"Upskilling & Workshops", quarter:"Q2" },
+  // Sin Focus Area
+  { key:"AGILE-42",  summary:"[PlayerExperience] - DOR & DOD",                                      status:"In Progress", focusArea:null, quarter:null },
+  { key:"AGILE-43",  summary:"[PlayerExperience] - how to move from Idea",                           status:"In Progress", focusArea:null, quarter:null },
+  { key:"AGILE-44",  summary:"[Websites] - follow up meeting",                                       status:"Done",        focusArea:null, quarter:null },
+  { key:"AGILE-45",  summary:"[Websites & PlayerExperience] - Agreement document",                   status:"In Review",   focusArea:null, quarter:null },
+  { key:"AGILE-58",  summary:"Create an Space in Confluence",                                        status:"Done",        focusArea:null, quarter:null },
+  { key:"AGILE-64",  summary:"[PAM] Support delivery Iris",                                          status:"In Progress", focusArea:null, quarter:null },
+  { key:"AGILE-65",  summary:"[PAM] - Support Product to set up category",                           status:"Done",        focusArea:null, quarter:null },
+  { key:"AGILE-75",  summary:"[UI/UX Design] – Epic naming convention Support & Follow-up",          status:"In Progress", focusArea:null, quarter:null },
+  { key:"AGILE-78",  summary:"[PAM] – Epic naming convention Support & Follow-up",                   status:"In Progress", focusArea:null, quarter:null },
+  { key:"AGILE-80",  summary:"[Websites] – Epic naming convention Support & Follow-up",              status:"To Do",       focusArea:null, quarter:null },
+  { key:"AGILE-83",  summary:"Double check with Ariel before to go with annoucement",                status:"Done",        focusArea:null, quarter:null },
+  { key:"AGILE-84",  summary:"Make an announcement",                                                 status:"Done",        focusArea:null, quarter:null },
+  { key:"AGILE-85",  summary:"Sharing and getting feedback from Stander (Product) to get their support", status:"Done",   focusArea:null, quarter:null },
+  { key:"AGILE-93",  summary:"[UI/UX Design] – Super Bowl 2026 Delivery Support Survey & Follow-up", status:"Cancelled",  focusArea:null, quarter:null },
+  { key:"AGILE-98",  summary:"[Websites] – Super Bowl 2026 Delivery Support Survey & Follow-up",     status:"Done",        focusArea:null, quarter:null },
+  { key:"AGILE-130", summary:"Review calls with between Design team",                                status:"To Do",       focusArea:null, quarter:null },
+  { key:"AGILE-138", summary:"[Design] - Capture initiative in progress",                            status:"Done",        focusArea:null, quarter:null },
+  { key:"AGILE-139", summary:"[Design] - Creating Epics",                                            status:"In Progress", focusArea:null, quarter:null },
+  { key:"AGILE-140", summary:"[Design] - Creating task depend on Epics",                             status:"In Progress", focusArea:null, quarter:null },
+  { key:"AGILE-141", summary:"[Design] - Create a Backlog wating for Green Light",                   status:"To Do",       focusArea:null, quarter:null },
+  { key:"AGILE-182", summary:"[All] Engineering Practices Workshop in Madrid - Action Items for ADLs [Q1 2025]", status:"Done", focusArea:null, quarter:null },
+  { key:"AGILE-269", summary:"[Cashier] Quick Deposit Retrospective Interviews [Q1 2026]",           status:"Done",        focusArea:null, quarter:null },
+  { key:"AGILE-307", summary:"[Delivery] Follow Up on QA AI ODM Roselyn Demo [Q2 2026]",             status:"To Do",       focusArea:null, quarter:null },
 ];
 
 const FA_COLORS = {
@@ -313,10 +217,9 @@ const FA_COLORS = {
   "Upskilling & Workshops": "#56d364",
 };
 
-const QUARTERS = ["Q1", "Q2", "Q3", "Q4", "—"];
+const QUARTERS    = ["Q1", "Q2", "Q3", "Q4", "—"];
 const FOCUS_AREAS = Object.keys(FA_COLORS);
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
 function qLabel(q) { return q || "—"; }
 
 function badgeClass(s) {
@@ -328,16 +231,14 @@ function badgeClass(s) {
   return "badge-todo";
 }
 
-// ── State ────────────────────────────────────────────────────────────────────
 let activeQ = "All";
 
-// ── Summary stats ────────────────────────────────────────────────────────────
+// ── Summary ──────────────────────────────────────────────────────────────────
 function renderSummary() {
   const total = TASKS.length;
   const done  = TASKS.filter(t => t.status === "Done").length;
   const wip   = TASKS.filter(t => t.status === "In Progress").length;
   const todo  = TASKS.filter(t => t.status === "To Do").length;
-
   document.getElementById("summaryRow").innerHTML = `
     <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total Tasks</div></div>
     <div class="stat-card"><div class="stat-num" style="color:var(--done-text)">${done}</div><div class="stat-label">Done</div></div>
@@ -347,7 +248,7 @@ function renderSummary() {
   `;
 }
 
-// ── Chart ────────────────────────────────────────────────────────────────────
+// ── Chart ─────────────────────────────────────────────────────────────────────
 function buildChartData() {
   return {
     labels: QUARTERS,
@@ -382,49 +283,28 @@ function renderChart() {
       plugins: {
         legend: {
           position: "bottom",
-          labels: {
-            color: "#8b949e",
-            font: { size: 12 },
-            padding: 16,
-            usePointStyle: true,
-            pointStyleWidth: 10,
-          },
+          labels: { color: "#8b949e", font: { size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 10 },
           onClick(e, legendItem, legend) {
-            // default toggle visibility
             Chart.defaults.plugins.legend.onClick.call(this, e, legendItem, legend);
           }
         },
         tooltip: {
-          backgroundColor: "#161b22",
-          borderColor: "#30363d",
-          borderWidth: 1,
-          titleColor: "#e6edf3",
-          bodyColor: "#8b949e",
+          backgroundColor: "#161b22", borderColor: "#30363d", borderWidth: 1,
+          titleColor: "#e6edf3", bodyColor: "#8b949e",
           callbacks: {
-            label(ctx) {
-              return ` ${ctx.dataset.label}: ${ctx.parsed.y} task${ctx.parsed.y !== 1 ? "s" : ""}`;
-            }
+            label(ctx) { return ` ${ctx.dataset.label}: ${ctx.parsed.y} task${ctx.parsed.y !== 1 ? "s" : ""}`; }
           }
         }
       },
       scales: {
-        x: {
-          stacked: false,
-          grid: { color: "#21262d" },
-          ticks: { color: "#8b949e" }
-        },
-        y: {
-          stacked: false,
-          beginAtZero: true,
-          grid: { color: "#21262d" },
-          ticks: { color: "#8b949e", stepSize: 1 }
-        }
+        x: { stacked: false, grid: { color: "#21262d" }, ticks: { color: "#8b949e" } },
+        y: { stacked: false, beginAtZero: true, grid: { color: "#21262d" }, ticks: { color: "#8b949e", stepSize: 1 } }
       }
     }
   });
 }
 
-// ── Quarter tabs ─────────────────────────────────────────────────────────────
+// ── Quarter tabs ──────────────────────────────────────────────────────────────
 function renderTabs() {
   const container = document.getElementById("qTabs");
   const unclassified = TASKS.filter(t => !t.quarter && !t.focusArea).length;
@@ -444,7 +324,7 @@ function setActiveQ(q) {
   renderGroups();
 }
 
-// ── Task groups ──────────────────────────────────────────────────────────────
+// ── Task groups ───────────────────────────────────────────────────────────────
 function filteredTasks() {
   if (activeQ === "All") return TASKS;
   if (activeQ === "Sin clasificar") return TASKS.filter(t => !t.quarter && !t.focusArea);
@@ -464,54 +344,64 @@ function renderGroups() {
     return;
   }
 
-  // Group by focus area
+  // Focus Area groups ordered by count desc
   const grouped = {};
   FOCUS_AREAS.forEach(fa => {
     const items = tasks.filter(t => t.focusArea === fa);
     if (items.length) grouped[fa] = items;
   });
+  const sortedGroups = Object.entries(grouped).sort((a, b) => b[1].length - a[1].length);
 
-  container.innerHTML = Object.entries(grouped).map(([fa, items]) => `
-    <div class="fa-group open" id="fa-${fa.replace(/\W/g,'-')}">
+  // Sin Focus Area group
+  const noFA = tasks.filter(t => !t.focusArea);
+
+  const renderTable = (items) => `
+    <table>
+      <thead>
+        <tr>
+          <th style="width:110px">Key</th>
+          <th>Summary</th>
+          <th style="width:90px">Quarter</th>
+          <th style="width:110px">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map(t => `
+          <tr>
+            <td><a class="task-key" href="${BASE}${t.key}" target="_blank">${t.key}</a></td>
+            <td class="task-summary">${t.summary}</td>
+            <td style="color:var(--muted);font-size:12px">${t.quarter || "—"}</td>
+            <td><span class="badge ${badgeClass(t.status)}">${t.status}</span></td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+
+  const renderGroup = (fa, items, color) => `
+    <div class="fa-group open">
       <div class="fa-header" onclick="toggleGroup(this)">
         <div class="fa-title">
-          <span class="fa-dot" style="background:${FA_COLORS[fa]}"></span>
+          <span class="fa-dot" style="background:${color}"></span>
           ${fa}
           <span class="fa-count">${items.length}</span>
         </div>
         <span class="fa-chevron">▼</span>
       </div>
-      <div class="fa-body">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:110px">Key</th>
-              <th>Summary</th>
-              <th style="width:90px">Quarter</th>
-              <th style="width:110px">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${items.map(t => `
-              <tr>
-                <td><a class="task-key" href="${BASE}${t.key}" target="_blank">${t.key}</a></td>
-                <td class="task-summary">${t.summary}</td>
-                <td style="color:var(--muted);font-size:12px">${t.quarter || "—"}</td>
-                <td><span class="badge ${badgeClass(t.status)}">${t.status}</span></td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      </div>
+      <div class="fa-body">${renderTable(items)}</div>
     </div>
-  `).join("");
+  `;
+
+  container.innerHTML =
+    sortedGroups.map(([fa, items]) => renderGroup(fa, items, FA_COLORS[fa])).join("") +
+    (noFA.length ? renderGroup("Sin Focus Area", noFA, "#8b949e") : "");
 }
 
 function toggleGroup(header) {
   header.closest(".fa-group").classList.toggle("open");
 }
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 renderSummary();
 renderChart();
 renderTabs();
